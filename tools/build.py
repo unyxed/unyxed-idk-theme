@@ -10,27 +10,55 @@ Outputs (all generated, never edit by hand):
     themes/<family>.json                      Zed theme families
     ports/windows-terminal/<package-id>.json  Windows Terminal fragment with every scheme
     ports/obsidian/<package-id>-<family>.css  AnuPpuccin snippets, one per family
-    preview/index.html                        Static preview of every variant
+    preview/index.html                        Static preview of every variant, next to Zed's Gruvbox
 
 Requires Python 3.9+, no third-party packages.
 """
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PALETTES = ROOT / "palettes.json"
 REFERENCE = ROOT / "reference" / "zed.json"
+GRUVBOX = ROOT / "reference" / "gruvbox.json"
 SCHEMA = "https://zed.dev/schema/themes/v0.2.0.json"
 
-SYNTAX_ROLES = ["kw", "ct", "im", "st", "fn", "nu", "ty", "pr", "op"]
-ROLES = ["bg", "panel", "tx", "cm", "er", "green", "yellow", "blue", "sel"] + SYNTAX_ROLES
-ANSI_ROLES = ["er", "green", "yellow", "blue", "nu", "fn"]
-DEFAULT_RULES = {"text": 7.0, "comment": 4.2, "syntax": 4.5, "ansi": 4.5, "distinct": 25.0}
+HUES = ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
+ROLES = ["bg", "panel", "tx", "cm", "sel", "accent"] + HUES
+DEFAULT_RULES = {"text": 7.0, "comment": 4.2, "syntax": 4.5,
+                 "distinct": 25.0, "chroma": 45.0, "spread": 20.0}
 
+# Zed's Gruvbox syntax structure: which keys share a hue. Copied from reference/gruvbox.json,
+# and the build checks it still matches that file. "text" = the plain editor text color.
+GROUPS = {
+    "red": ["keyword", "preproc", "function.builtin"],
+    "green": ["function", "string", "title"],
+    "yellow": ["type", "constant", "selector"],
+    "blue": ["attribute", "constructor", "namespace", "label", "variant", "variable.special",
+             "text.literal", "emphasis", "emphasis.strong", "punctuation.markup", "selector.pseudo"],
+    "purple": ["number", "boolean", "link_uri", "string.special"],
+    "aqua": ["operator", "tag", "embedded", "link_text", "string.special.symbol"],
+    "orange": ["enum", "string.regex"],
+    "text": ["variable", "variable.parameter", "property", "primary", "punctuation.list_marker"],
+}
+# Captures Zed's grammars emit that Gruvbox has no key for (or whose prefix lands in the wrong
+# group). Each goes to the nearest Gruvbox group by meaning.
+EXTRA = {
+    "red": ["storageclass", "import", "type.qualifier", "media", "keyframes", "supports", "charset"],
+    "blue": ["module", "variable.builtin", "function.decorator", "function.method.constructor", "lifetime"],
+    "yellow": ["concept", "diff.delta"],
+    "green": ["markup.heading"],
+    "purple": ["markup.link.url", "type.unit"],
+    "text": ["text", "function.kwargs"],
+    "comment": ["strikethrough"],
+}
+BOLD = {"title", "emphasis.strong", "markup.heading"}
+ITALIC = {"link_text"}
 # Captures that intentionally render in the default text color (no theme key needed).
-PLAIN_CAPTURES = {"none", "nested", "text.jsx"}
+PLAIN_CAPTURES = {"none", "nested"}
 
 
 # ---------------------------------------------------------------- color math
@@ -80,6 +108,11 @@ def lab(h):
     return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
 
 
+def chroma(h):
+    _, a, b = lab(h)
+    return math.hypot(a, b)
+
+
 def delta_e(a, b):
     A, B = lab(a), lab(b)
     return sum((A[i] - B[i]) ** 2 for i in range(3)) ** 0.5
@@ -107,11 +140,21 @@ def soft(c, bg, ratio, minimum):
     return mix(c, bg, max(ratio, 0))
 
 
+def sharpness(c):
+    """Gruvbox-style separation numbers for a palette: avg chroma, L* range, closest pair."""
+    ls = [lab(c[k])[0] for k in HUES]
+    pool = HUES + ["tx"]
+    pairs = sorted((delta_e(c[a], c[b]), a, b) for i, a in enumerate(pool) for b in pool[i + 1:])
+    return {"chroma": sum(chroma(c[k]) for k in HUES) / len(HUES), "lmin": min(ls), "lmax": max(ls),
+            "spread": max(ls) - min(ls), "closest": pairs[0]}
+
+
 # ---------------------------------------------------------------- data
 def load():
     data = json.loads(PALETTES.read_text(encoding="utf-8"))
     ref = json.loads(REFERENCE.read_text(encoding="utf-8"))
-    return data, ref
+    gruv = json.loads(GRUVBOX.read_text(encoding="utf-8"))
+    return data, ref, gruv
 
 
 def rules_for(data, variant):
@@ -136,8 +179,8 @@ def ansi(c, dark, tbg):
     tx = c["tx"]
     base = {
         "black": mix(c["bg"], tx, 0.25) if dark else tx,
-        "red": c["er"], "green": c["green"], "yellow": c["yellow"],
-        "blue": c["blue"], "magenta": c["nu"], "cyan": c["fn"],
+        "red": c["red"], "green": c["green"], "yellow": c["yellow"],
+        "blue": c["blue"], "magenta": c["purple"], "cyan": c["aqua"],
         "white": mix(c["bg"], tx, 0.75) if dark else mix(c["bg"], tx, 0.3),
     }
     out = {}
@@ -154,69 +197,49 @@ def ansi(c, dark, tbg):
 
 
 # ---------------------------------------------------------------- zed
-def zed_syntax(c, opts):
+def zed_syntax(c, rules):
     tx, bg, cm = c["tx"], c["bg"], c["cm"]
-    kw, st, fn, nu, ty = c["kw"], c["st"], c["fn"], c["nu"], c["ty"]
-    floor = 4.5
-    punct = soft(tx, bg, 0.30, floor)
-    ct, im, pr, op = c["ct"], c["im"], c["pr"], c["op"]
-    doc = mix(cm, tx, 0.2)
-    it = {"font_style": "italic"}
-    w = opts.get("emphasis_weight")
-    strong = {"font_weight": w} if w else {}
+    floor = rules["syntax"]
+    color = {h: c[h] for h in HUES}
+    color["text"] = tx
+    color["comment"] = cm
+    # muted helpers: doc comments and escapes are a lighter muted tone (closer to text than comments)
+    doc = mix(cm, tx, 0.3)
 
-    def s(color, **extra):
-        d = {"color": color}
+    def s(col, key=None, **extra):
+        d = {"color": col}
+        if key in BOLD:
+            d["font_weight"] = 700
+        if key in ITALIC:
+            d["font_style"] = "italic"
         d.update(extra)
         return d
 
-    return {
-        # comments
-        "comment": s(cm, **it), "comment.doc": s(doc, **it), "string.doc": s(doc, **it),
-        # keywords and friends
-        # `keyword` and `keyword.declaration` = declaration/storage (class, const, public, local);
-        # control flow, import/preprocessor and word-operators get their own hue.
-        "keyword": s(kw, **strong), "keyword.declaration": s(kw, **strong), "storageclass": s(kw),
-        "keyword.control": s(ct, **strong), "keyword.operator": s(op),
-        "keyword.import": s(im), "keyword.preproc": s(im), "keyword.directive": s(im),
-        "preproc": s(im), "import": s(im),
-        "selector": s(kw), "selector.pseudo": s(nu), "media": s(kw), "keyframes": s(kw),
-        "supports": s(kw), "charset": s(kw),
-        "variable.special": s(kw, **it), "variable.builtin": s(kw, **it),
-        # types (includes type.builtin like `unsigned int`, classes, interfaces)
-        "type": s(ty, **strong), "constructor": s(ty), "concept": s(ty), "enum": s(ty),
-        "tag.component": s(ty), "lifetime": s(nu, **it),
-        # functions
-        "function": s(fn), "function.decorator": s(nu), "property.json_key": s(fn),
-        # literals
-        "string": s(st), "string.escape": s(nu), "string.regex": s(nu), "string.special": s(st),
-        "string.special.symbol": s(nu), "text.literal": s(st),
-        "number": s(nu), "boolean": s(nu), "constant": s(nu), "variant": s(nu),
-        "attribute": s(nu), "label": s(nu),
-        # members/properties have their own hue (JSON keys stay `fn`, see above)
-        "property": s(pr), "variable.other.member": s(pr),
-        # plain identifiers stay in the text color on purpose
-        "variable": s(tx), "variable.parameter": s(tx), "namespace": s(tx),
-        "module": s(tx), "embedded": s(tx), "primary": s(tx), "text": s(tx),
-        # punctuation and operators
-        "operator": s(op), "punctuation": s(punct), "punctuation.special": s(kw),
-        "punctuation.list_marker": s(kw), "punctuation.markup": s(kw), "punctuation.embedded": s(kw),
-        # markup
-        "tag": s(kw), "tag.doctype": s(cm), "title": s(kw, font_weight=700),
-        "markup.heading": s(kw, font_weight=700), "markup.link": s(fn),
-        "emphasis": s(tx, **it), "emphasis.strong": s(tx, font_weight=700),
-        "strikethrough": s(cm), "link_text": s(fn), "link_uri": s(st),
-        # diff and misc
-        "diff.plus": s(c["green"]), "diff.minus": s(c["er"]), "diff.delta": s(c["yellow"]),
-        "warning": s(c["yellow"]), "hint": s(cm), "predictive": s(cm, **it),
-    }
+    out = {}
+    for group, keys in list(GROUPS.items()) + list(EXTRA.items()):
+        for k in keys:
+            out[k] = s(color[group], k)
+    out.update({
+        # comments stay italic (the owner's choice; Gruvbox has upright comments)
+        "comment": s(cm, font_style="italic"), "comment.doc": s(doc, font_style="italic"),
+        "string.escape": s(doc),
+        # punctuation: dimmed text, brackets dimmer, delimiters/special slightly brighter
+        "punctuation": s(soft(tx, bg, 0.16, floor)),
+        "punctuation.bracket": s(soft(tx, bg, 0.34, floor)),
+        "punctuation.delimiter": s(soft(tx, bg, 0.07, floor)),
+        "punctuation.special": s(soft(tx, bg, 0.07, floor)),
+        # editor hints and diff
+        "hint": s(mix(cm, c["aqua"], 0.25)), "predictive": s(mix(cm, bg, 0.2), font_style="italic"),
+        "diff.plus": s(c["green"]), "diff.minus": s(c["red"]),
+    })
+    return out
 
 
 def zed_theme(v):
     c, dark = v["colors"], is_dark(v)
-    bg, panel, tx, cm = c["bg"], c["panel"], c["tx"], c["cm"]
-    kw, st, fn, nu, er = c["kw"], c["st"], c["fn"], c["nu"], c["er"]
-    green, yellow, blue, sel = c["green"], c["yellow"], c["blue"], c["sel"]
+    bg, panel, tx, cm, sel, acc = c["bg"], c["panel"], c["tx"], c["cm"], c["sel"], c["accent"]
+    red, orange, yellow, green = c["red"], c["orange"], c["yellow"], c["green"]
+    aqua, blue, purple = c["aqua"], c["blue"], c["purple"]
 
     def lift(base, t):
         return mix(base, tx, t)
@@ -231,31 +254,31 @@ def zed_theme(v):
         return bg if contrast(bg, color) >= contrast(tx, color) else tx
 
     S = {
-        "border": border, "border.variant": bvar, "border.focused": fn, "border.selected": kw,
+        "border": border, "border.variant": bvar, "border.focused": acc, "border.selected": acc,
         "border.transparent": "#00000000", "border.disabled": bdis,
         "elevated_surface.background": elev, "surface.background": panel, "background": panel,
         "element.background": el_bg, "element.hover": el_h, "element.active": el_a,
-        "element.selected": sel, "element.disabled": bdis, "element.selection_background": alpha(kw, .25),
-        "drop_target.background": alpha(kw, .2), "drop_target.border": kw,
+        "element.selected": sel, "element.disabled": bdis, "element.selection_background": alpha(acc, .25),
+        "drop_target.background": alpha(acc, .2), "drop_target.border": acc,
         "ghost_element.background": "#00000000", "ghost_element.hover": el_h,
         "ghost_element.active": el_a, "ghost_element.selected": sel, "ghost_element.disabled": bdis,
-        "text": tx, "text.muted": muted, "text.placeholder": cm, "text.disabled": dis, "text.accent": kw,
-        "icon": icon, "icon.muted": cm, "icon.disabled": dis, "icon.placeholder": cm, "icon.accent": kw,
-        "debugger.accent": er,
+        "text": tx, "text.muted": muted, "text.placeholder": cm, "text.disabled": dis, "text.accent": acc,
+        "icon": icon, "icon.muted": cm, "icon.disabled": dis, "icon.placeholder": cm, "icon.accent": acc,
+        "debugger.accent": red,
         "status_bar.background": panel, "title_bar.background": panel,
         "title_bar.inactive_background": panel, "toolbar.background": bg, "tab_bar.background": panel,
         "tab.inactive_background": panel, "tab.active_background": bg,
-        "search.match_background": alpha(fn, .3), "search.active_match_background": alpha(st, .45),
-        "panel.background": panel, "panel.focused_border": fn, "panel.indent_guide": bvar,
+        "search.match_background": alpha(blue, .3), "search.active_match_background": alpha(orange, .45),
+        "panel.background": panel, "panel.focused_border": acc, "panel.indent_guide": bvar,
         "panel.indent_guide_hover": border, "panel.indent_guide_active": border,
         "panel.overlay_background": elev, "panel.overlay_hover": el_h,
         "pane.focused_border": bvar, "pane_group.border": border,
         "scrollbar_thumb.background": alpha(tx, .15),
         "scrollbar.thumb.background": alpha(tx, .15), "scrollbar.thumb.hover_background": alpha(tx, .3),
-        "scrollbar.thumb.active_background": alpha(tx, .4), "scrollbar.thumb.border": "#00000000",
+        "scrollbar.thumb.active_background": alpha(acc, .6), "scrollbar.thumb.border": "#00000000",
         "scrollbar.track.background": "#00000000", "scrollbar.track.border": bvar,
         "minimap.thumb.background": alpha(tx, .1), "minimap.thumb.hover_background": alpha(tx, .15),
-        "minimap.thumb.active_background": alpha(tx, .2), "minimap.thumb.border": "#00000000",
+        "minimap.thumb.active_background": alpha(acc, .3), "minimap.thumb.border": "#00000000",
         "editor.foreground": tx, "editor.code_lens.foreground": cm, "editor.background": bg,
         "editor.gutter.background": bg, "editor.subheader.background": panel,
         "editor.active_line.background": lift(bg, .05), "editor.highlighted_line.background": sel,
@@ -264,33 +287,33 @@ def zed_theme(v):
         "editor.hover_line_number": mix(linenum, tx, .5), "editor.invisible": linenum,
         "editor.wrap_guide": guide, "editor.active_wrap_guide": guide_a,
         "editor.indent_guide": guide, "editor.indent_guide_active": guide_a,
-        "editor.document_highlight.read_background": alpha(fn, .15),
-        "editor.document_highlight.write_background": alpha(kw, .2),
-        "editor.document_highlight.bracket_background": alpha(kw, .2),
+        "editor.document_highlight.read_background": alpha(blue, .15),
+        "editor.document_highlight.write_background": alpha(acc, .2),
+        "editor.document_highlight.bracket_background": alpha(acc, .2),
         "editor.diff_hunk.added.background": alpha(green, .18),
         "editor.diff_hunk.added.hollow_background": alpha(green, .08),
         "editor.diff_hunk.added.hollow_border": alpha(green, .5),
-        "editor.diff_hunk.deleted.background": alpha(er, .18),
-        "editor.diff_hunk.deleted.hollow_background": alpha(er, .08),
-        "editor.diff_hunk.deleted.hollow_border": alpha(er, .5),
+        "editor.diff_hunk.deleted.background": alpha(red, .18),
+        "editor.diff_hunk.deleted.hollow_background": alpha(red, .08),
+        "editor.diff_hunk.deleted.hollow_border": alpha(red, .5),
         "terminal.background": bg, "terminal.foreground": tx, "terminal.ansi.background": bg,
         "terminal.bright_foreground": mix(tx, "#FFFFFF", .3) if dark else mix(tx, "#000000", .3),
         "terminal.dim_foreground": cm,
-        "link_text.hover": fn,
-        "version_control.added": green, "version_control.deleted": er,
+        "link_text.hover": blue,
+        "version_control.added": green, "version_control.deleted": red,
         "version_control.modified": yellow, "version_control.renamed": blue,
-        "version_control.conflict": nu, "version_control.ignored": cm,
-        "version_control.word_added": alpha(green, .25), "version_control.word_deleted": alpha(er, .25),
+        "version_control.conflict": orange, "version_control.ignored": cm,
+        "version_control.word_added": alpha(green, .25), "version_control.word_deleted": alpha(red, .25),
         "version_control.conflict_marker.ours": alpha(green, .12),
         "version_control.conflict_marker.theirs": alpha(blue, .12),
     }
-    vim = {"normal": kw, "insert": green, "replace": er, "visual": nu, "visual_line": nu,
-           "visual_block": nu, "helix_normal": kw, "helix_select": nu}
+    vim = {"normal": acc, "insert": green, "replace": red, "visual": purple, "visual_line": purple,
+           "visual_block": purple, "helix_normal": acc, "helix_select": purple}
     for mode, col in vim.items():
         S[f"vim.{mode}.background"] = col
         S[f"vim.{mode}.foreground"] = on(col)
-    S["vim.yank.background"] = alpha(st, .35)
-    S["vim.helix_jump_label.foreground"] = kw
+    S["vim.yank.background"] = alpha(yellow, .35)
+    S["vim.helix_jump_label.foreground"] = acc
     for k, col in ansi(c, dark, bg).items():
         S["terminal.ansi." + k] = col
 
@@ -298,15 +321,15 @@ def zed_theme(v):
         S[name] = col
         S[name + ".background"] = mix(bg, col, .14)
         S[name + ".border"] = mix(bg, col, .38)
-    for name, col in [("error", er), ("warning", yellow), ("success", green), ("info", fn),
-                      ("hint", cm), ("created", green), ("modified", yellow), ("deleted", er),
-                      ("conflict", nu), ("renamed", blue), ("ignored", cm), ("hidden", cm),
+    for name, col in [("error", red), ("warning", yellow), ("success", green), ("info", blue),
+                      ("hint", cm), ("created", green), ("modified", yellow), ("deleted", red),
+                      ("conflict", orange), ("renamed", blue), ("ignored", cm), ("hidden", cm),
                       ("predictive", cm), ("unreachable", cm)]:
         stat(name, col)
-    S["accents"] = [kw, st, fn, nu, c["ty"], blue, green]
+    S["accents"] = [acc, yellow, aqua, purple, green, blue, orange]
     S["players"] = [{"cursor": p, "background": p, "selection": alpha(p, .25)}
-                    for p in (kw, fn, st, nu, blue, green)]
-    S["syntax"] = zed_syntax(c, v.get("options", {}))
+                    for p in (acc, blue, orange, purple, aqua, red, yellow, green)]
+    S["syntax"] = zed_syntax(c, v["_rules"])
     return {"name": v["name"], "appearance": v["appearance"], "style": S}
 
 
@@ -315,7 +338,7 @@ def wt_scheme(v):
     c, dark = v["colors"], is_dark(v)
     a = ansi(c, dark, c["bg"])
     wt = {"name": v["name"], "background": c["bg"], "foreground": c["tx"],
-          "cursorColor": c["kw"], "selectionBackground": c["sel"]}
+          "cursorColor": c["accent"], "selectionBackground": c["sel"]}
     names = {"black": "black", "red": "red", "green": "green", "yellow": "yellow",
              "blue": "blue", "magenta": "purple", "cyan": "cyan", "white": "white"}
     for src, dst in names.items():
@@ -331,10 +354,11 @@ def ctp_palette(v):
     dark = is_dark(v)
     crust = mix(c["panel"], "#000000", .12) if dark else mix(c["panel"], tx, .06)
     return {
-        "rosewater": mix(c["st"], tx, .35), "flamingo": mix(c["kw"], tx, .3), "pink": c["ct"],
-        "mauve": c["kw"], "red": c["er"], "maroon": mix(c["er"], c["kw"], .5), "peach": c["st"],
-        "yellow": c["yellow"], "green": c["green"], "teal": c["fn"], "sky": c["op"],
-        "sapphire": mix(c["blue"], c["fn"], .3), "blue": c["blue"], "lavender": c["nu"],
+        "rosewater": mix(c["orange"], tx, .45), "flamingo": c["accent"],
+        "pink": mix(c["purple"], c["red"], .35), "mauve": c["purple"], "red": c["red"],
+        "maroon": mix(c["red"], c["accent"], .5), "peach": c["orange"],
+        "yellow": c["yellow"], "green": c["green"], "teal": c["aqua"], "sky": mix(c["aqua"], c["blue"], .5),
+        "sapphire": mix(c["blue"], c["aqua"], .3), "blue": c["blue"], "lavender": mix(c["blue"], c["purple"], .5),
         "text": tx, "subtext1": mix(tx, bg, .15), "subtext0": mix(tx, bg, .28),
         "overlay2": mix(bg, tx, .62), "overlay1": mix(bg, tx, .52), "overlay0": c["cm"],
         "surface2": mix(bg, tx, .24), "surface1": mix(bg, tx, .16), "surface0": mix(bg, tx, .09),
@@ -372,77 +396,157 @@ def obsidian_css(pkg, title, vs):
 
 # ---------------------------------------------------------------- preview
 # Samples are lists of lines; a line is a list of (capture, text). Captures are the ones Zed's
-# grammars really emit (see reference/zed.json), resolved with Zed's longest-prefix rule, so the
-# preview shows what Zed will show. A bare string is plain text.
-# These languages are illustrations only: the theme must work for every language (see AGENTS.md).
+# grammars really emit (C++ and TypeScript: Zed's highlights.scm; Luau: the Luau extension),
+# resolved with Zed's longest-prefix rule, so the preview shows what Zed will show. A bare string
+# is plain text. These languages are illustrations only: the theme must work for every language.
 def _l(*parts):
     return [p if isinstance(p, tuple) else ("", p) for p in parts]
 
 
-BR, DEL, OP = "punctuation.bracket", "punctuation.delimiter", "operator"
+BR, DL, OP, PS = "punctuation.bracket", "punctuation.delimiter", "operator", "punctuation.special"
+KW, KC, KD, KI = "keyword", "keyword.control", "keyword.declaration", "keyword.import"
+TY, TB, FN, ST, NU, PR = "type", "type.builtin", "function", "string", "number", "property"
+VA, VP = "variable", "variable.parameter"
 SAMPLES = {
     "C++": [
         _l(("comment", "// OpenGL shader wrapper")),
-        _l(("keyword.preproc", "#include"), " ", ("string", "<vector>")),
-        _l(("keyword.preproc", "#define"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", ("number", "8")),
-        _l(("keyword", "namespace"), " ", ("namespace", "gfx"), " ", (BR, "{")),
-        _l(("keyword", "class"), " ", ("type", "Shader"), " ", (DEL, ":"), " ", ("keyword", "public"), " ", ("type", "Base"), " ", (BR, "{")),
-        _l(("keyword", "public"), (DEL, ":")),
-        _l("    ", ("type.builtin", "unsigned int"), " ", ("property", "id"), (BR, "{"), ("number", "0"), (BR, "}"), (DEL, ";")),
-        _l("    ", ("function", "Shader"), (BR, "()"), " ", (OP, "="), " ", ("keyword", "delete"), (DEL, ";")),
-        _l("    ", ("type.builtin", "void"), " ", ("function", "use"), (BR, "()"), " ", ("keyword", "const"), " ", (BR, "{")),
-        _l("        ", ("function", "glUseProgram"), (BR, "("), "id", (BR, ")"), (DEL, ";")),
-        _l("        ", ("keyword.control", "for"), " ", (BR, "("), ("type", "auto"), (OP, "&"), " s ", (DEL, ":"), " list", (BR, ")"), " ", (BR, "{")),
-        _l("            ", ("keyword.control", "if"), " ", (BR, "("), "s", (OP, "."), ("property", "ok"), " ", (OP, "&&"), " ", (OP, "!"), "s", (OP, "."), ("function", "empty"), (BR, "()"), (BR, ")"), " ", ("keyword.control", "return"), (DEL, ";")),
-        _l("        ", (BR, "}")),
-        _l("        ", ("variable.builtin", "this"), (OP, "->"), ("property", "id"), " ", (OP, "="), " ", ("number", "0xFF"), (DEL, ";")),
-        _l("    ", (BR, "}")),
-        _l("    ", ("namespace", "std"), (DEL, "::"), ("type", "string"), " name ", (OP, "="), " ", ("string", '"shader'), ("string.escape", "\\n"), ("string", '"'), (DEL, ";")),
-        _l("    ", ("keyword", "static constexpr"), " ", ("type.builtin", "float"), " kPi ", (OP, "="), " ", ("number", "3.14f"), (DEL, ";")),
-        _l("    ", ("type", "Mesh"), (OP, "*"), " mesh ", (OP, "="), " ", ("constant.builtin", "nullptr"), (DEL, ";"), " ", ("boolean", "true")),
-        _l((BR, "}"), (DEL, ";")),
+        _l(("keyword.preproc", "#include"), " ", (ST, "<vector>")),
+        _l(("keyword.preproc", "#define"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", (NU, "8")),
+        _l(""),
+        _l((KW, "namespace"), " ", ("namespace", "gfx"), " ", (BR, "{")),
+        _l((KW, "class"), " ", (TY, "Shader"), " ", (BR, "{"), " ", (KW, "public"), (DL, ":"), " ",
+           (TB, "unsigned int"), " ", (PR, "id"), (BR, "{"), (NU, "0"), (BR, "}"), (DL, ";"), " ",
+           (FN, "Shader"), (BR, "()"), " ", (OP, "="), " ", (KW, "delete"), (DL, ";")),
+        _l("  ", (TB, "void"), " ", (FN, "use"), (BR, "()"), " ", (KW, "const"), " ", (BR, "{"), " ",
+           (FN, "glUseProgram"), (BR, "("), (VA, "id"), (BR, ")"), (DL, ";"), " ", (BR, "}"), " ", (BR, "}"), (DL, ";")),
+        _l(""),
+        _l((KW, "enum class"), " ", (TY, "Mode"), " ", (BR, "{"), " ", (VA, "Fill"), (DL, ","), " ", (VA, "Line"), " ", (BR, "}"), (DL, ";")),
+        _l((KW, "template"), " ", (OP, "<"), (KW, "typename"), " ", (TY, "T"), (OP, ">"),
+           " ", (KW, "struct"), " ", (TY, "Light"), " ", (DL, ":"), " ", (KW, "public"), " ", (TY, "Base"), " ", (BR, "{")),
+        _l("  ", (BR, "[["), ("attribute", "nodiscard"), (BR, "]]"), " ", (TB, "bool"), " ", (FN, "on"), (BR, "()"), " ",
+           (KW, "const noexcept"), " ", (BR, "{"), " ", (KC, "return"), " ", ("variable.builtin", "this"), (OP, "->"),
+           (PR, "id"), " ", (OP, "!="), " ", (NU, "0"), (DL, ";"), " ", (BR, "}")),
+        _l((BR, "}"), (DL, ";")),
+        _l(("function.builtin", "static_assert"), (BR, "("), (KW, "sizeof"), (BR, "("), (TY, "Light"), (BR, ")"), " ",
+           (OP, ">"), " ", (NU, "0"), (BR, ")"), (DL, ";")),
+        _l(""),
+        _l((TB, "float"), " ", (FN, "scale"), (BR, "("), (KW, "const"), " ", (TY, "Mesh"), (OP, "&"), " ", (VA, "mesh"),
+           (DL, ","), " ", (TB, "float"), " ", (VA, "k"), (BR, ")"), " ", (BR, "{")),
+        _l("  ", ("namespace", "std"), (DL, "::"), (TY, "string"), " ", (VA, "name"), " ", (OP, "="), " ",
+           (ST, '"mesh'), ("string.escape", "\\n"), (ST, '"'), (DL, ";")),
+        _l("  ", (KC, "for"), " ", (BR, "("), (TY, "auto"), (OP, "&"), " ", (VA, "v"), " ", (DL, ":"), " ",
+           (VA, "mesh"), (OP, "."), (PR, "verts"), (BR, ")"), " ", (BR, "{")),
+        _l("    ", (KC, "if"), " ", (BR, "("), (VA, "v"), (OP, "."), (PR, "y"), " ", (OP, "<"), " ", (NU, "0.5f"), " ",
+           (OP, "&&"), " ", (OP, "!"), (VA, "mesh"), (OP, "."), (FN, "empty"), (BR, "()"), (BR, ")"), " ", (KC, "continue"), (DL, ";")),
+        _l("    ", (VA, "v"), (OP, "."), (PR, "x"), " ", (OP, "*="), " ", (VA, "k"), (DL, ";")),
+        _l("  ", (BR, "}")),
+        _l("  ", (TY, "auto"), (OP, "*"), " ", (VA, "p"), " ", (OP, "="), " ", ("constant.builtin", "nullptr"), (DL, ";"), " ",
+           (TB, "bool"), " ", (VA, "ok"), " ", (OP, "="), " ", ("boolean", "true"), (DL, ";")),
+        _l("  ", (KC, "return"), " ", (VA, "k"), " ", (OP, ">"), " ", (NU, "1.0"), " ", (OP, "?"), " ", (VA, "k"), " ",
+           (OP, ":"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", (OP, "+"), " ", (NU, "0x1F"), (DL, ";"),
+           " ", ("comment", "// ternary")),
+        _l((BR, "}")),
+        _l((BR, "}"), " ", ("comment", "// namespace gfx")),
     ],
     "TypeScript": [
         _l(("comment", "// scene loader")),
-        _l(("keyword.import", "import"), " ", (BR, "{"), " Mesh ", (BR, "}"), " ", ("keyword.import", "from"), " ", ("string", '"./mesh"'), (DEL, ";")),
-        _l(("keyword.import", "export"), " ", ("keyword.declaration", "interface"), " ", ("type", "Props"), " ", (BR, "{"), " ", ("property", "size"), (DEL, ":"), " ", ("type.builtin", "number"), (DEL, ";"), " ", (BR, "}")),
-        _l(("keyword.declaration", "const"), " x ", (OP, "="), " foo", (DEL, "."), ("function.method", "bar"), (BR, "("), ("number", "42"), (DEL, ","), " ", ("string", '"text"'), (BR, ")"), (DEL, ";")),
-        _l(("keyword.control", "if"), " ", (BR, "("), "x", (BR, ")"), " ", ("keyword.control", "return"), (DEL, ";")),
-        _l(("keyword.declaration", "class"), " ", ("type.class", "Scene"), " ", ("keyword", "extends"), " ", ("type.class", "Base"), " ", (BR, "{")),
-        _l("    ", ("keyword", "private"), " ", ("property", "meshes"), (DEL, ":"), " ", ("type", "Mesh"), (BR, "[]"), " ", (OP, "="), " ", (BR, "[]"), (DEL, ";")),
-        _l("    ", ("function.method", "add"), (BR, "("), "m", (DEL, ":"), " ", ("type", "Mesh"), (BR, ")"), " ", (BR, "{")),
-        _l("        ", ("variable.special", "this"), (DEL, "."), ("property", "meshes"), (DEL, "."), ("function.method", "push"), (BR, "("), "m", (BR, ")"), (DEL, ";")),
-        _l("    ", (BR, "}")),
+        _l((KI, "import"), " ", (BR, "{"), " ", (TY, "Mesh"), (DL, ","), " ", (KD, "type"), " ", (TY, "Props"), " ",
+           (BR, "}"), " ", (KI, "from"), " ", (ST, '"./mesh"'), (DL, ";")),
+        _l((KI, "export"), " ", (KD, "interface"), " ", (TY, "Config"), " ", (BR, "{"), " ", (PR, "size"), (PS, ":"), " ",
+           (TB, "number"), (DL, ";"), " ", (PR, "name"), (PS, "?"), (PS, ":"), " ", (TB, "string"), " ", (BR, "}")),
+        _l(""),
+        _l((KD, "const"), " ", (VA, "x"), " ", (OP, "="), " ", (VA, "foo"), (DL, "."), ("function.method", "bar"),
+           (BR, "("), (NU, "42"), (DL, ","), " ", (ST, '"text"'), (BR, ")"), " ", (OP, "+"), " ", (NU, "1"), (DL, ";"), " ",
+           (KC, "if"), " ", (BR, "("), (VA, "x"), (BR, ")"), " ", (KC, "return"), (DL, ";")),
+        _l(""),
+        _l((KD, "class"), " ", ("type.class", "Scene"), " ", (KW, "extends"), " ", ("type.class", "Base"), " ",
+           (KW, "implements"), " ", (TY, "Config"), " ", (BR, "{")),
+        _l("  ", (KW, "private"), " ", (PR, "meshes"), (PS, ":"), " ", (TY, "Mesh"), (BR, "[]"), " ", (OP, "="), " ",
+           (BR, "[]"), (DL, ";")),
+        _l("  ", (KW, "static readonly"), " ", (PR, "MAX"), " ", (OP, "="), " ", (NU, "8"), (DL, ";")),
+        _l("  ", ("constructor", "constructor"), (BR, "("), (KW, "public"), " ", (VP, "size"), (PS, ":"), " ",
+           (TB, "number"), (BR, ")"), " ", (BR, "{"), " ", ("variable.special", "super"), (BR, "()"), (DL, ";"), " ", (BR, "}")),
+        _l("  ", ("function.method", "add"), (BR, "("), (VP, "m"), (PS, ":"), " ", (TY, "Mesh"), (BR, ")"), (PS, ":"),
+           " ", (TB, "void"), " ", (BR, "{"), " ", ("variable.special", "this"), (DL, "."), (PR, "meshes"), (DL, "."),
+           ("function.method", "push"), (BR, "("), (VA, "m"), (BR, ")"), (DL, ";"), " ", (BR, "}")),
         _l((BR, "}")),
-        _l(("keyword", "async"), " ", ("keyword.declaration", "function"), " ", ("function", "load"), (BR, "("), "url", (DEL, ":"), " ", ("type.builtin", "string"), (BR, ")"), (DEL, ":"), " ", ("type", "Promise"), (OP, "<"), ("type", "Mesh"), (OP, ">"), " ", (BR, "{")),
-        _l("    ", ("keyword.declaration", "const"), " res ", (OP, "="), " ", ("keyword.control", "await"), " ", ("function", "fetch"), (BR, "("), "url", (BR, ")"), (DEL, ";")),
-        _l("    ", ("keyword.control", "return"), " res", (DEL, "."), ("function.method", "json"), (BR, "()"), " ", (OP, "&&"), " ", ("boolean", "true"), (DEL, ";")),
+        _l(""),
+        _l((KW, "async"), " ", (KD, "function"), " ", (FN, "load"), (BR, "("), (VP, "url"), (PS, ":"), " ", (TB, "string"),
+           (BR, ")"), (PS, ":"), " ", (TY, "Promise"), (BR, "<"), (TY, "Mesh"), " ", (PS, "|"), " ", (TB, "null"), (BR, ">"),
+           " ", (BR, "{")),
+        _l("  ", (KD, "const"), " ", (VA, "res"), " ", (OP, "="), " ", (KC, "await"), " ", (FN, "fetch"), (BR, "("),
+           (ST, "`"), (PS, "${"), (VA, "url"), (PS, "}"), (ST, "/scene?v="), (PS, "${"), (NU, "2"), (PS, "}"), (ST, "`"),
+           (BR, ")"), (DL, ";")),
+        _l("  ", (KD, "const"), " ", (VA, "re"), " ", (OP, "="), " ", ("string.regex", "/\\d+\\.obj$/"),
+           ("keyword.operator.regex", "gi"), (DL, ";")),
+        _l("  ", (KC, "return"), " ", (VA, "res"), (DL, "."), (PR, "ok"), " ", (OP, "?"), " ", (VA, "res"), (DL, "."),
+           ("function.method", "json"), (BR, "()"), " ", (OP, ":"), " ", ("constant.builtin", "null"), (DL, ";")),
         _l((BR, "}")),
     ],
     "Luau": [
-        _l(("comment", "-- Roblox spawn handler")),
-        _l(("keyword", "local"), " Players ", (OP, "="), " game", (DEL, ":"), ("function.method", "GetService"), (BR, "("), ("string", '"Players"'), (BR, ")")),
-        _l(("keyword", "type"), " ", ("type", "Config"), " ", (OP, "="), " ", (BR, "{"), " ", ("property", "speed"), (DEL, ":"), " ", ("type.builtin", "number"), " ", (BR, "}")),
-        _l(("keyword", "local function"), " ", ("function", "spawn"), (BR, "("), "player", (DEL, ":"), " ", ("type", "Player"), (DEL, ","), " hp", (DEL, ":"), " ", ("type.builtin", "number"), (BR, ")")),
-        _l("    ", ("keyword", "if not"), " player ", ("keyword", "then return end")),
-        _l("    ", ("keyword", "for"), " i ", (OP, "="), " ", ("number", "1"), (DEL, ","), " ", ("number", "10"), " ", ("keyword", "do")),
-        _l("        ", ("keyword", "local"), " part ", (OP, "="), " ", ("constant.namespace", "Instance"), (DEL, "."), ("function", "new"), (BR, "("), ("string", '"Part"'), (BR, ")")),
-        _l("        part", (DEL, "."), ("property", "Position"), " ", (OP, "="), " ", ("type", "Vector3"), (DEL, "."), ("function", "new"), (BR, "("), ("number", "0"), (DEL, ","), " ", ("number", "5"), (DEL, ","), " ", ("number", "0"), (BR, ")")),
-        _l("        ", ("function.builtin", "print"), (BR, "("), ("string", '"spawned"'), (DEL, ","), " ", ("boolean", "true"), (BR, ")")),
-        _l("    ", ("keyword", "end")),
-        _l(("keyword", "end")),
-        _l(("comment", "-- Zed's Luau grammar tags every keyword as plain `keyword`: no control/declaration split")),
+        _l(("comment.doc", "--- Roblox spawn handler")),
+        _l((KW, "local"), " ", (VA, "Players"), " ", (OP, "="), " ", (VA, "game"), (DL, ":"), (FN, "GetService"),
+           (BR, "("), (ST, '"Players"'), (BR, ")")),
+        _l((KW, "local"), " ", ("constant", "MAX_HP"), " ", (OP, "="), " ", (NU, "100")),
+        _l((KW, "type"), " ", (TY, "Config"), " ", (OP, "="), " ", (BR, "{"), " ", (VA, "speed"), (DL, ":"), " ",
+           (TY, "number"), (DL, ","), " ", (VA, "name"), (DL, ":"), " ", (TY, "string"), (OP, "?"), " ", (BR, "}")),
+        _l(""),
+        _l((KW, "local"), " ", (VA, "part"), " ", (OP, "="), " ", (VA, "Instance"), (DL, "."), (FN, "new"), (BR, "("),
+           (ST, '"Part"'), (BR, ")"), " ", (VA, "part"), (DL, "."), (PR, "Anchored"), " ", (OP, "="), " ", ("boolean", "true")),
+        _l(""),
+        _l((KW, "local function"), " ", (FN, "spawn"), (BR, "("), (VP, "player"), (DL, ":"), " ", (TY, "Player"),
+           (DL, ","), " ", (VP, "hp"), (DL, ":"), " ", (TY, "number"), (BR, ")"), (DL, ":"), " ", (TY, "boolean")),
+        _l("  ", (KW, "if"), " ", (OP, "not"), " ", (VA, "player"), " ", (OP, "or"), " ", (VA, "hp"), " ", (OP, "<="), " ",
+           (NU, "0"), " ", (KW, "then return"), " ", ("boolean", "false"), " ", (KW, "end")),
+        _l("  ", (KW, "for"), " ", (VA, "i"), " ", (OP, "="), " ", (NU, "1"), (DL, ","), " ", (NU, "10"), " ", (KW, "do")),
+        _l("    ", (KW, "local"), " ", (VA, "p"), " ", (OP, "="), " ", (VA, "part"), (DL, ":"), (FN, "Clone"), (BR, "()")),
+        _l("    ", (VA, "p"), (DL, "."), (PR, "Position"), " ", (OP, "="), " ", (VA, "Vector3"), (DL, "."), (FN, "new"),
+           (BR, "("), (NU, "0"), (DL, ","), " ", (VA, "i"), " ", (OP, "*"), " ", (NU, "5"), (DL, ","), " ", (NU, "0"), (BR, ")")),
+        _l("    ", (VA, "p"), (DL, "."), (PR, "Name"), " ", (OP, "="), " ", (ST, "`Part_"), (PS, "{"), (VA, "i"), (PS, "}"),
+           (ST, "`")),
+        _l("    ", ("function.builtin", "print"), (BR, "("), ("variable.special", "math"), (DL, "."),
+           ("function.builtin", "floor"), (BR, "("), (VA, "hp"), " ", (OP, "/"), " ", (NU, "2"), (BR, ")"), (DL, ","), " ",
+           ("constant.builtin", "nil"), (BR, ")")),
+        _l("  ", (KW, "end")),
+        _l("  ", ("variable.special", "self"), (DL, "."), (PR, "count"), " ", (OP, "+="), " ", (NU, "1")),
+        _l("  ", (KW, "return"), " ", ("boolean", "true"), " ", ("comment", "-- the Luau grammar tags every keyword as plain `keyword`")),
+        _l((KW, "end")),
+    ],
+    "Tokens": [
+        _l(("comment", "-- one line per Gruvbox group, every token kind it covers")),
+        _l(("comment", "red    "), (KW, "keyword"), " ", (KC, "if"), " ", ("keyword.preproc", "#include"), " ",
+           ("function.builtin", "print"), (BR, "()"), " ", ("storageclass", "static"), " ", ("type.qualifier", "volatile")),
+        _l(("comment", "green  "), (FN, "function"), (BR, "()"), " ", ("function.method", "method"), (BR, "()"), " ",
+           (ST, '"string"'), " ", ("title.markup", "# Title"), " ", ("markup.heading", "## heading")),
+        _l(("comment", "yellow "), (TY, "Type"), " ", (TB, "int"), " ", ("constant", "CONSTANT"), " ",
+           ("constant.builtin", "nullptr"), " ", ("selector.class", ".selector"), " ", ("concept", "Concept")),
+        _l(("comment", "blue   "), ("attribute", "@attribute"), " ", ("constructor", "Constructor"), " ",
+           ("namespace", "namespace"), " ", ("module", "module"), " ", ("label", "label:"), " ", ("variant", "Variant"),
+           " ", ("variable.special", "this"), " ", ("lifetime", "'a"), " ", ("text.literal.markup", "`code`"), " ",
+           ("emphasis.strong.markup", "**strong**")),
+        _l(("comment", "purple "), (NU, "42"), " ", ("boolean", "true"), " ", ("link_uri.markup", "https://zed.dev"), " ",
+           ("string.special", "special"), " ", ("string.special.path", "./path")),
+        _l(("comment", "aqua   "), (OP, "="), " ", (OP, "&&"), " ", (OP, "->"), " ", ("tag", "<div>"), " ",
+           ("embedded", "embedded"), " ", ("link_text.markup", "link text"), " ", ("string.special.symbol", ":symbol")),
+        _l(("comment", "orange "), ("enum", "Enum"), " ", ("string.regex", "/re(g)ex+/")),
+        _l(("comment", "text   "), (VA, "variable"), " ", (VP, "parameter"), " ", (PR, "property"), " ",
+           ("punctuation.list_marker.markup", "-"), " list"),
+        _l(("comment", "punct  "), ("punctuation", "punctuation"), " ", (BR, "( ) [ ] { }"), " ", (DL, ", ; ::"), " ",
+           (PS, "${ }")),
+        _l(("comment", "muted  "), ("comment", "// comment"), " ", ("comment.doc", "/// doc comment"), " ",
+           ("string.escape", "\\n \\t"), " ", ("hint", "hint"), " ", ("predictive", "predictive")),
+        _l(("comment", "diff   "), ("diff.plus", "+ added"), " ", ("diff.minus", "- removed")),
     ],
 }
 
 
-def resolve(syntax, cap, tx):
+def resolve_key(syntax, cap):
     parts = cap.split(".")
     for i in range(len(parts), 0, -1):
         k = ".".join(parts[:i])
         if k in syntax:
-            return syntax[k]
-    return {"color": tx}
+            return k
+    return None
 
 
 def render_sample(syntax, tx, lines):
@@ -454,75 +558,137 @@ def render_sample(syntax, tx, lines):
             if not cap:
                 row.append(text)
                 continue
-            style = resolve(syntax, cap, tx)
-            css = f"color:{style['color']}"
+            k = resolve_key(syntax, cap)
+            style = syntax[k] if k else {"color": tx}
+            css = f"color:{style['color'][:7]}"
             if style.get("font_style") == "italic":
                 css += ";font-style:italic"
             if style.get("font_weight"):
                 css += f";font-weight:{style['font_weight']}"
-            row.append(f'<span style="{css}">{text}</span>')
+            row.append(f'<span style="{css}" title="@{cap} -> {k or "plain"}">{text}</span>')
         out.append("".join(row))
     return "\n".join(out)
 
 
-def min_distinct(c):
-    pool = SYNTAX_ROLES + ["tx"]
-    return min(delta_e(c[a], c[b]) for i, a in enumerate(pool) for b in pool[i + 1:])
+def gruvbox_cards(gruv):
+    """Zed's Gruvbox Dark and Light as preview cards, colors read from reference/gruvbox.json."""
+    out = []
+    for t in gruv["themes"]:
+        if t["name"] not in ("Gruvbox Dark", "Gruvbox Light"):
+            continue
+        st = t["style"]
+        syn = {k: {kk: vv for kk, vv in v.items() if vv is not None} for k, v in st["syntax"].items()}
+        c = {"bg": st["editor.background"][:7], "tx": st["editor.foreground"][:7], "panel": st["panel.background"][:7],
+             "cm": syn["comment"]["color"][:7]}
+        for hue, key in [("red", "keyword"), ("orange", "enum"), ("yellow", "type"), ("green", "string"),
+                         ("aqua", "operator"), ("blue", "attribute"), ("purple", "number")]:
+            c[hue] = syn[key]["color"][:7]
+        out.append({"name": t["name"] + " (Zed, reference)", "appearance": t["appearance"], "colors": c,
+                    "syntax": syn, "ref": True})
+    return out
 
 
-def preview_html(pkg, data):
-    cards = []
-    for fam, v in variants(data):
-        c = v["colors"]
-        syntax = zed_syntax(c, v.get("options", {}))
-        sw = "".join(f'<i style="background:{c[k]}" title="{k} {c[k]}"></i>' for k in SYNTAX_ROLES)
-        pres = "".join(
-            f'<pre class="lang" data-lang="{lang}">{render_sample(syntax, c["tx"], lines)}</pre>'
-            for lang, lines in SAMPLES.items())
-        cards.append(
-            f'<section><h2>{v["name"]} <small>closest pair dE {min_distinct(c):.1f}</small><span class="sw">{sw}</span></h2>'
-            f'<div class="ed" style="background:{c["bg"]};color:{c["tx"]};border-color:{c["panel"]}">'
-            f'<div class="bar" style="background:{c["panel"]};color:{c["cm"]}">sample</div>{pres}</div></section>')
-    langs = "".join(f"<button onclick=\"show('{l}')\">{l}</button>" for l in SAMPLES)
+def preview_html(pkg, data, gruv):
+    cards = gruvbox_cards(gruv)
+    for _, v in variants(data):
+        cards.append({"name": v["name"], "appearance": v["appearance"], "colors": v["colors"],
+                      "syntax": zed_syntax(v["colors"], v["_rules"]), "pending": v.get("pending", False)})
+    html = []
+    for group, title in [("dark", "Dark"), ("light", "Light and mid-tone")]:
+        html.append(f"<h2 class=grp>{title}</h2><div class=grid>")
+        for card in cards:
+            if card["appearance"] != group:
+                continue
+            c, sh = card["colors"], sharpness(card["colors"])
+            sw = "".join(f'<i style="background:{c[k]}" title="{k} {c[k]}"></i>' for k in HUES)
+            if "accent" in c:
+                sw += f'<b style="background:{c["accent"]}" title="accent {c["accent"]}"></b>'
+            stats = (f'avg C {sh["chroma"]:.0f} &middot; L* {sh["lmin"]:.0f}-{sh["lmax"]:.0f} '
+                     f'(spread {sh["spread"]:.0f}) &middot; closest dE {sh["closest"][0]:.1f} '
+                     f'{sh["closest"][1]}/{sh["closest"][2]}')
+            tag = " <em>reference</em>" if card.get("ref") else (" <em>old colors, pending</em>" if card.get("pending") else "")
+            pres = "".join(
+                f'<pre class="lang" data-lang="{lang}">{render_sample(card["syntax"], c["tx"], lines)}</pre>'
+                for lang, lines in SAMPLES.items())
+            cls = "card ref" if card.get("ref") else ("card pending" if card.get("pending") else "card")
+            html.append(
+                f'<section class="{cls}"><h3>{card["name"]}{tag}<span class="sw">{sw}</span></h3>'
+                f'<div class="ed" style="background:{c["bg"]};color:{c["tx"]};border-color:{c["panel"]}">'
+                f'<div class="bar" style="background:{c["panel"]};color:{c["cm"]}">{stats}</div>{pres}</div></section>')
+        html.append("</div>")
+    langs = "".join(f"<button data-l=\"{l}\" onclick=\"show('{l}')\">{l}</button>" for l in SAMPLES)
     first = next(iter(SAMPLES))
-    return ("<!doctype html><meta charset=utf-8><title>" + pkg["name"] + " preview</title>"
-            "<style>body{font-family:system-ui,sans-serif;background:#888;margin:24px}"
-            "h2{font-size:14px;margin:18px 0 6px;color:#111;display:flex;gap:10px;align-items:center}"
-            "h2 small{font-weight:400;opacity:.7}.sw{display:flex;gap:2px}.sw i{width:14px;height:14px;border-radius:3px}"
-            ".ed{border-radius:8px;overflow:hidden;border:1px solid}.bar{padding:6px 12px;font-size:12px}"
-            "pre{margin:0;padding:12px 16px;font:13px/1.7 ui-monospace,Consolas,monospace;display:none}"
-            "button{font:13px system-ui;margin-right:6px;padding:4px 12px}</style>"
-            "<h1 style='font-size:18px'>" + pkg["name"] + "</h1><p>" + langs + "</p>" + "".join(cards) +
-            "<script>function show(l){document.querySelectorAll('pre.lang').forEach(p=>p.style.display=p.dataset.lang===l?'block':'none')}"
-            "show('" + first + "')</script>")
+    return ("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+            "<title>" + pkg["name"] + " preview</title>"
+            "<style>body{font-family:system-ui,sans-serif;background:#7a7a7a;margin:20px;color:#111}"
+            "h1{font-size:18px;margin:0 0 6px}p.note{margin:4px 0 10px;font-size:13px}"
+            "h2.grp{font-size:15px;margin:22px 0 6px}.grid{display:grid;gap:14px;"
+            "grid-template-columns:repeat(auto-fill,minmax(min(100%,640px),1fr))}"
+            "h3{font-size:13px;margin:0 0 5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}"
+            "h3 em{font-weight:400;font-style:normal;background:#0002;padding:0 6px;border-radius:4px}"
+            ".card.pending{opacity:.55}.card.ref h3{color:#2a1a00}"
+            ".sw{display:flex;gap:2px}.sw i,.sw b{width:14px;height:14px;border-radius:3px}"
+            ".sw b{border-radius:50%;margin-left:4px}"
+            ".ed{border-radius:8px;overflow:hidden;border:1px solid}.bar{padding:5px 12px;font-size:12px}"
+            "pre{margin:0;padding:10px 14px;font:13px/1.65 ui-monospace,'Cascadia Code',Consolas,monospace;"
+            "display:none;overflow-x:auto}"
+            "button{font:13px system-ui;margin-right:6px;padding:4px 12px}button.on{font-weight:700}</style>"
+            "<h1>" + pkg["name"] + "</h1><p class=note>Zed's Gruvbox is shown first in each group as the target "
+            "for separation. Hover a token to see its capture and the theme key it resolves to. Swatches: "
+            "red, orange, yellow, green, aqua, blue, purple, then the accent (circle).</p><p>" + langs + "</p>"
+            + "".join(html) +
+            "<script>function show(l){document.querySelectorAll('pre.lang').forEach(p=>p.style.display="
+            "p.dataset.lang===l?'block':'none');document.querySelectorAll('button').forEach(b=>"
+            "b.classList.toggle('on',b.dataset.l===l))}show('" + first + "')</script>")
 
 
 # ---------------------------------------------------------------- validation
-def validate(data, ref, themes):
+def group_of_keys():
+    out = {}
+    for group, keys in list(GROUPS.items()) + list(EXTRA.items()):
+        for k in keys:
+            out[k] = group
+    return out
+
+
+def validate(data, ref, gruv, themes):
     errors, warnings = [], []
     want = set(ref["color_keys"]) | set(ref["status_keys"])
+    pending = []
     for fam, v in variants(data):
-        c, name, r = v["colors"], v["name"], rules_for(data, v)
+        c, name, r = v["colors"], v["name"], v["_rules"]
         missing = [k for k in ROLES if k not in c]
         if missing:
             errors.append(f"{name}: palette missing roles {missing}")
             continue
+        unknown = sorted(set(c) - set(ROLES))
+        if unknown:
+            errors.append(f"{name}: palette has unknown roles {unknown}")
+        problems = []
         bg = c["bg"]
-        checks = [("tx", r["text"]), ("cm", r["comment"])] + [(k, r["syntax"]) for k in SYNTAX_ROLES + ["er"]]
+        checks = [("tx", r["text"]), ("cm", r["comment"]), ("accent", r["syntax"])] + [(k, r["syntax"]) for k in HUES]
         for k, target in checks:
             got = contrast(c[k], bg)
             if got + 1e-9 < target:
-                errors.append(f"{name}: {k} {c[k]} is {got:.2f}:1 on bg, needs {target}")
-        for k in ANSI_ROLES:
-            got = contrast(c[k], bg)
-            if got + 1e-9 < r["ansi"]:
-                errors.append(f"{name}: terminal {k} {c[k]} is {got:.2f}:1 on bg, needs {r['ansi']}")
-        pool = SYNTAX_ROLES + ["tx"]
+                problems.append(f"{name}: {k} {c[k]} is {got:.2f}:1 on bg, needs {target}")
+        # Gruvbox-style sharpness: hues far apart, saturated enough, spread in lightness
+        pool = HUES + ["tx"]
         for i, a in enumerate(pool):
             for b in pool[i + 1:]:
                 d = delta_e(c[a], c[b])
                 if d < r["distinct"]:
-                    errors.append(f"{name}: {a} and {b} look too similar (dE {d:.1f} < {r['distinct']})")
+                    problems.append(f"{name}: {a} and {b} look too similar (dE {d:.1f} < {r['distinct']})")
+        sh = sharpness(c)
+        if sh["chroma"] + 1e-9 < r["chroma"]:
+            problems.append(f"{name}: hues too dull (avg chroma {sh['chroma']:.1f} < {r['chroma']})")
+        if sh["spread"] + 1e-9 < r["spread"]:
+            problems.append(f"{name}: hues too flat (L* spread {sh['spread']:.1f} < {r['spread']})")
+        if v.get("pending"):
+            pending.append(f"{name} ({len(problems)} issue(s))")
+        else:
+            errors.extend(problems)
+    if pending:
+        warnings.append("not yet migrated to the Gruvbox structure, sharpness not enforced: " + ", ".join(pending))
     names = [v["name"] for _, v in variants(data)]
     dupes = {n for n in names if names.count(n) > 1}
     if dupes:
@@ -542,13 +708,36 @@ def validate(data, ref, themes):
             got = contrast(style[f"vim.{label}.foreground"], style[f"vim.{label}.background"])
             if got < 4.5:
                 warnings.append(f"{t['name']}: vim {label} label contrast {got:.1f}")
+    # Structure: the GROUPS table must still match Zed's Gruvbox, and our themes must have every key it has.
+    groups = group_of_keys()
+    for gt in gruv["themes"]:
+        if gt["name"] not in ("Gruvbox Dark", "Gruvbox Light"):
+            continue
+        gsyn = gt["style"]["syntax"]
+        for group, keys in GROUPS.items():
+            base = gsyn[keys[0]]["color"]
+            for k in keys[1:]:
+                if delta_e(gsyn[k]["color"][:7], base[:7]) > 2:
+                    errors.append(f"GROUPS: {k} is not in the same group as {keys[0]} in {gt['name']}")
+        for k in gsyn:
+            if themes and k not in themes[0]["style"]["syntax"]:
+                errors.append(f"syntax key {k} from {gt['name']} is missing from our themes")
+    # Every grammar capture must land on a key that belongs to a known group.
     keys = set(themes[0]["style"]["syntax"]) if themes else set()
+    unresolved, ungrouped = [], set()
     for cap in ref["captures"]:
         if cap.startswith("_") or cap in PLAIN_CAPTURES:
             continue
-        parts = cap.split(".")
-        if not any(".".join(parts[:i]) in keys for i in range(len(parts), 0, -1)):
-            warnings.append(f"capture @{cap} has no theme key (renders as plain text)")
+        k = resolve_key(keys, cap)
+        if k is None:
+            unresolved.append(cap)
+        elif k not in groups and k.split(".")[0] not in ("comment", "punctuation", "string", "hint",
+                                                          "predictive", "diff"):
+            ungrouped.add(k)
+    if unresolved:
+        errors.append(f"captures with no theme key (would render as plain text): {sorted(unresolved)}")
+    if ungrouped:
+        errors.append(f"syntax keys outside the Gruvbox groups: {sorted(ungrouped)}")
     return errors, warnings
 
 
@@ -558,16 +747,11 @@ def fix(data):
         c, r = v["colors"], rules_for(data, v)
         # Blend toward black (light themes) or white (dark themes): keeps hue and saturation.
         anchor = "#FFFFFF" if is_dark(v) else "#000000"
-        targets = [("tx", r["text"]), ("cm", r["comment"])] + [(k, r["syntax"]) for k in SYNTAX_ROLES + ["er"]]
+        targets = [("tx", r["text"]), ("cm", r["comment"]), ("accent", r["syntax"])] + [(k, r["syntax"]) for k in HUES]
         for k, target in targets:
             new = toward_contrast(c[k], c["bg"], target, anchor)
             if new != c[k]:
                 changed.append(f"{v['name']}: {k} {c[k]} -> {new}")
-                c[k] = new
-        for k in ANSI_ROLES:
-            new = toward_contrast(c[k], c["bg"], r["ansi"], anchor)
-            if new != c[k]:
-                changed.append(f"{v['name']}: {k} {c[k]} -> {new} (terminal)")
                 c[k] = new
     return changed
 
@@ -579,16 +763,18 @@ def main():
     ap.add_argument("--check", action="store_true", help="validate only, write nothing")
     args = ap.parse_args()
 
-    data, ref = load()
+    data, ref, gruv = load()
     pkg = data["package"]
     if args.fix:
         for line in fix(data):
             print("fixed", line)
         PALETTES.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    for _, v in variants(data):
+        v["_rules"] = rules_for(data, v)
 
     themes_by_family = {f["file"]: [zed_theme(v) for v in f["variants"]] for f in data["families"]}
     all_themes = [t for ts in themes_by_family.values() for t in ts]
-    errors, warnings = validate(data, ref, all_themes)
+    errors, warnings = validate(data, ref, gruv, all_themes)
     for w in warnings:
         print("warning:", w)
     for e in errors:
@@ -626,7 +812,7 @@ def main():
 
     pv = ROOT / "preview"
     pv.mkdir(exist_ok=True)
-    (pv / "index.html").write_text(preview_html(pkg, data), encoding="utf-8")
+    (pv / "index.html").write_text(preview_html(pkg, data, gruv), encoding="utf-8")
 
     n = len(all_themes)
     print(f"built {n} themes: Zed ({len(data['families'])} files), Windows Terminal ({n} schemes), "

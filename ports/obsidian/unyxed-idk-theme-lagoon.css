@@ -4,20 +4,20 @@
 
 /* Lagoon Dark */
 .theme-dark {
-  --ctp-custom-rosewater: 233, 205, 187;
-  --ctp-custom-flamingo: 233, 167, 154;
-  --ctp-custom-pink: 242, 148, 201;
-  --ctp-custom-mauve: 235, 136, 120;
+  --ctp-custom-rosewater: 232, 210, 194;
+  --ctp-custom-flamingo: 235, 136, 120;
+  --ctp-custom-pink: 208, 158, 198;
+  --ctp-custom-mauve: 183, 166, 235;
   --ctp-custom-red: 255, 142, 128;
   --ctp-custom-maroon: 245, 139, 124;
   --ctp-custom-peach: 236, 187, 162;
   --ctp-custom-yellow: 231, 196, 143;
   --ctp-custom-green: 156, 201, 160;
   --ctp-custom-teal: 129, 211, 200;
-  --ctp-custom-sky: 96, 184, 217;
+  --ctp-custom-sky: 136, 196, 212;
   --ctp-custom-sapphire: 139, 189, 217;
   --ctp-custom-blue: 143, 180, 224;
-  --ctp-custom-lavender: 183, 166, 235;
+  --ctp-custom-lavender: 163, 173, 230;
   --ctp-custom-text: 227, 238, 234;
   --ctp-custom-subtext1: 198, 211, 208;
   --ctp-custom-subtext0: 174, 187, 186;
@@ -34,20 +34,20 @@
 
 /* Lagoon Light */
 .theme-light {
-  --ctp-custom-rosewater: 94, 72, 35;
-  --ctp-custom-flamingo: 123, 68, 63;
-  --ctp-custom-pink: 149, 54, 97;
-  --ctp-custom-mauve: 163, 72, 63;
+  --ctp-custom-rosewater: 84, 70, 39;
+  --ctp-custom-flamingo: 163, 72, 63;
+  --ctp-custom-pink: 146, 73, 115;
+  --ctp-custom-mauve: 123, 82, 152;
   --ctp-custom-red: 188, 57, 45;
   --ctp-custom-maroon: 176, 64, 54;
   --ctp-custom-peach: 128, 80, 20;
   --ctp-custom-yellow: 145, 99, 30;
   --ctp-custom-green: 59, 119, 77;
   --ctp-custom-teal: 19, 115, 102;
-  --ctp-custom-sky: 2, 111, 142;
+  --ctp-custom-sky: 36, 108, 135;
   --ctp-custom-sapphire: 43, 106, 148;
   --ctp-custom-blue: 53, 102, 168;
-  --ctp-custom-lavender: 123, 82, 152;
+  --ctp-custom-lavender: 88, 92, 160;
   --ctp-custom-text: 31, 58, 63;
   --ctp-custom-subtext1: 61, 85, 89;
   --ctp-custom-subtext0: 87, 109, 112;

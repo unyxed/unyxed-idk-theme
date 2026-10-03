@@ -4,20 +4,20 @@
 
 /* Aubergine Dark */
 .theme-dark {
-  --ctp-custom-rosewater: 246, 188, 170;
-  --ctp-custom-flamingo: 244, 165, 185;
-  --ctp-custom-pink: 239, 160, 225;
-  --ctp-custom-mauve: 246, 138, 161;
+  --ctp-custom-rosewater: 245, 194, 181;
+  --ctp-custom-flamingo: 246, 138, 161;
+  --ctp-custom-pink: 197, 156, 205;
+  --ctp-custom-mauve: 166, 163, 243;
   --ctp-custom-red: 255, 142, 134;
   --ctp-custom-maroon: 250, 140, 148;
   --ctp-custom-peach: 250, 166, 131;
   --ctp-custom-yellow: 231, 196, 143;
   --ctp-custom-green: 156, 201, 160;
   --ctp-custom-teal: 110, 205, 206;
-  --ctp-custom-sky: 121, 185, 230;
+  --ctp-custom-sky: 126, 192, 215;
   --ctp-custom-sapphire: 133, 188, 219;
   --ctp-custom-blue: 143, 180, 224;
-  --ctp-custom-lavender: 166, 163, 243;
+  --ctp-custom-lavender: 154, 172, 234;
   --ctp-custom-text: 239, 229, 242;
   --ctp-custom-subtext1: 212, 201, 216;
   --ctp-custom-subtext0: 188, 176, 194;
@@ -34,20 +34,20 @@
 
 /* Aubergine Light */
 .theme-light {
-  --ctp-custom-rosewater: 113, 70, 43;
-  --ctp-custom-flamingo: 127, 58, 98;
-  --ctp-custom-pink: 165, 70, 70;
-  --ctp-custom-mauve: 159, 68, 115;
+  --ctp-custom-rosewater: 103, 65, 46;
+  --ctp-custom-flamingo: 159, 68, 115;
+  --ctp-custom-pink: 125, 58, 97;
+  --ctp-custom-mauve: 92, 58, 126;
   --ctp-custom-red: 186, 57, 44;
   --ctp-custom-maroon: 172, 62, 80;
   --ctp-custom-peach: 146, 88, 35;
   --ctp-custom-yellow: 144, 98, 30;
   --ctp-custom-green: 59, 119, 77;
   --ctp-custom-teal: 20, 90, 117;
-  --ctp-custom-sky: 0, 115, 105;
+  --ctp-custom-sky: 36, 96, 142;
   --ctp-custom-sapphire: 43, 98, 153;
   --ctp-custom-blue: 53, 102, 168;
-  --ctp-custom-lavender: 92, 58, 126;
+  --ctp-custom-lavender: 72, 80, 147;
   --ctp-custom-text: 51, 36, 59;
   --ctp-custom-subtext1: 80, 66, 87;
   --ctp-custom-subtext0: 104, 92, 111;

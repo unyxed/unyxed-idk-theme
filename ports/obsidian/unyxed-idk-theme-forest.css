@@ -4,20 +4,20 @@
 
 /* Forest Dark */
 .theme-dark {
-  --ctp-custom-rosewater: 233, 206, 169;
-  --ctp-custom-flamingo: 229, 171, 167;
-  --ctp-custom-pink: 248, 154, 208;
-  --ctp-custom-mauve: 229, 143, 143;
+  --ctp-custom-rosewater: 233, 211, 177;
+  --ctp-custom-flamingo: 229, 143, 143;
+  --ctp-custom-pink: 211, 156, 190;
+  --ctp-custom-mauve: 188, 163, 224;
   --ctp-custom-red: 255, 143, 127;
   --ctp-custom-maroon: 242, 143, 135;
   --ctp-custom-peach: 235, 189, 139;
   --ctp-custom-yellow: 231, 196, 143;
   --ctp-custom-green: 156, 201, 160;
   --ctp-custom-teal: 135, 212, 208;
-  --ctp-custom-sky: 98, 178, 216;
+  --ctp-custom-sky: 139, 196, 216;
   --ctp-custom-sapphire: 141, 190, 219;
   --ctp-custom-blue: 143, 180, 224;
-  --ctp-custom-lavender: 188, 163, 224;
+  --ctp-custom-lavender: 166, 172, 224;
   --ctp-custom-text: 230, 237, 224;
   --ctp-custom-subtext1: 202, 210, 197;
   --ctp-custom-subtext0: 177, 187, 174;
@@ -34,20 +34,20 @@
 
 /* Forest Light */
 .theme-light {
-  --ctp-custom-rosewater: 108, 72, 37;
-  --ctp-custom-flamingo: 129, 66, 65;
-  --ctp-custom-pink: 156, 72, 127;
-  --ctp-custom-mauve: 168, 71, 75;
+  --ctp-custom-rosewater: 97, 69, 38;
+  --ctp-custom-flamingo: 168, 71, 75;
+  --ctp-custom-pink: 135, 75, 117;
+  --ctp-custom-mauve: 107, 84, 156;
   --ctp-custom-red: 188, 57, 45;
   --ctp-custom-maroon: 178, 64, 60;
   --ctp-custom-peach: 145, 82, 35;
   --ctp-custom-yellow: 145, 99, 30;
   --ctp-custom-green: 60, 121, 78;
   --ctp-custom-teal: 14, 113, 120;
-  --ctp-custom-sky: 25, 92, 134;
+  --ctp-custom-sky: 34, 108, 144;
   --ctp-custom-sapphire: 41, 105, 154;
   --ctp-custom-blue: 53, 102, 168;
-  --ctp-custom-lavender: 107, 84, 156;
+  --ctp-custom-lavender: 80, 93, 162;
   --ctp-custom-text: 38, 54, 42;
   --ctp-custom-subtext1: 68, 82, 70;
   --ctp-custom-subtext0: 93, 106, 95;
