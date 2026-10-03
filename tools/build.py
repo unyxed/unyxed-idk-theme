@@ -24,10 +24,10 @@ PALETTES = ROOT / "palettes.json"
 REFERENCE = ROOT / "reference" / "zed.json"
 SCHEMA = "https://zed.dev/schema/themes/v0.2.0.json"
 
-ROLES = ["bg", "panel", "tx", "cm", "kw", "st", "fn", "nu", "ty", "er", "green", "yellow", "blue", "sel"]
-SYNTAX_ROLES = ["kw", "st", "fn", "nu", "ty"]
+SYNTAX_ROLES = ["kw", "ct", "im", "st", "fn", "nu", "ty", "pr", "op"]
+ROLES = ["bg", "panel", "tx", "cm", "er", "green", "yellow", "blue", "sel"] + SYNTAX_ROLES
 ANSI_ROLES = ["er", "green", "yellow", "blue", "nu", "fn"]
-DEFAULT_RULES = {"text": 7.0, "comment": 4.2, "syntax": 4.5, "ansi": 4.5, "distinct": 12.0}
+DEFAULT_RULES = {"text": 7.0, "comment": 4.2, "syntax": 4.5, "ansi": 4.5, "distinct": 25.0}
 
 # Captures that intentionally render in the default text color (no theme key needed).
 PLAIN_CAPTURES = {"none", "nested", "text.jsx"}
@@ -159,7 +159,7 @@ def zed_syntax(c, opts):
     kw, st, fn, nu, ty = c["kw"], c["st"], c["fn"], c["nu"], c["ty"]
     floor = 4.5
     punct = soft(tx, bg, 0.30, floor)
-    op = soft(tx, bg, 0.22, floor)
+    ct, im, pr, op = c["ct"], c["im"], c["pr"], c["op"]
     doc = mix(cm, tx, 0.2)
     it = {"font_style": "italic"}
     w = opts.get("emphasis_weight")
@@ -174,7 +174,12 @@ def zed_syntax(c, opts):
         # comments
         "comment": s(cm, **it), "comment.doc": s(doc, **it), "string.doc": s(doc, **it),
         # keywords and friends
-        "keyword": s(kw, **strong), "preproc": s(kw), "storageclass": s(kw), "import": s(kw),
+        # `keyword` and `keyword.declaration` = declaration/storage (class, const, public, local);
+        # control flow, import/preprocessor and word-operators get their own hue.
+        "keyword": s(kw, **strong), "keyword.declaration": s(kw, **strong), "storageclass": s(kw),
+        "keyword.control": s(ct, **strong), "keyword.operator": s(op),
+        "keyword.import": s(im), "keyword.preproc": s(im), "keyword.directive": s(im),
+        "preproc": s(im), "import": s(im),
         "selector": s(kw), "selector.pseudo": s(nu), "media": s(kw), "keyframes": s(kw),
         "supports": s(kw), "charset": s(kw),
         "variable.special": s(kw, **it), "variable.builtin": s(kw, **it),
@@ -188,8 +193,10 @@ def zed_syntax(c, opts):
         "string.special.symbol": s(nu), "text.literal": s(st),
         "number": s(nu), "boolean": s(nu), "constant": s(nu), "variant": s(nu),
         "attribute": s(nu), "label": s(nu),
+        # members/properties have their own hue (JSON keys stay `fn`, see above)
+        "property": s(pr), "variable.other.member": s(pr),
         # plain identifiers stay in the text color on purpose
-        "variable": s(tx), "variable.parameter": s(tx), "property": s(tx), "namespace": s(tx),
+        "variable": s(tx), "variable.parameter": s(tx), "namespace": s(tx),
         "module": s(tx), "embedded": s(tx), "primary": s(tx), "text": s(tx),
         # punctuation and operators
         "operator": s(op), "punctuation": s(punct), "punctuation.special": s(kw),
@@ -324,9 +331,9 @@ def ctp_palette(v):
     dark = is_dark(v)
     crust = mix(c["panel"], "#000000", .12) if dark else mix(c["panel"], tx, .06)
     return {
-        "rosewater": mix(c["st"], tx, .35), "flamingo": mix(c["kw"], tx, .3), "pink": mix(c["kw"], c["nu"], .4),
+        "rosewater": mix(c["st"], tx, .35), "flamingo": mix(c["kw"], tx, .3), "pink": c["ct"],
         "mauve": c["kw"], "red": c["er"], "maroon": mix(c["er"], c["kw"], .5), "peach": c["st"],
-        "yellow": c["yellow"], "green": c["green"], "teal": c["fn"], "sky": mix(c["fn"], c["blue"], .5),
+        "yellow": c["yellow"], "green": c["green"], "teal": c["fn"], "sky": c["op"],
         "sapphire": mix(c["blue"], c["fn"], .3), "blue": c["blue"], "lavender": c["nu"],
         "text": tx, "subtext1": mix(tx, bg, .15), "subtext0": mix(tx, bg, .28),
         "overlay2": mix(bg, tx, .62), "overlay1": mix(bg, tx, .52), "overlay0": c["cm"],
@@ -364,29 +371,130 @@ def obsidian_css(pkg, title, vs):
 
 
 # ---------------------------------------------------------------- preview
+# Samples are lists of lines; a line is a list of (capture, text). Captures are the ones Zed's
+# grammars really emit (see reference/zed.json), resolved with Zed's longest-prefix rule, so the
+# preview shows what Zed will show. A bare string is plain text.
+# These languages are illustrations only: the theme must work for every language (see AGENTS.md).
+def _l(*parts):
+    return [p if isinstance(p, tuple) else ("", p) for p in parts]
+
+
+BR, DEL, OP = "punctuation.bracket", "punctuation.delimiter", "operator"
+SAMPLES = {
+    "C++": [
+        _l(("comment", "// OpenGL shader wrapper")),
+        _l(("keyword.preproc", "#include"), " ", ("string", "<vector>")),
+        _l(("keyword.preproc", "#define"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", ("number", "8")),
+        _l(("keyword", "namespace"), " ", ("namespace", "gfx"), " ", (BR, "{")),
+        _l(("keyword", "class"), " ", ("type", "Shader"), " ", (DEL, ":"), " ", ("keyword", "public"), " ", ("type", "Base"), " ", (BR, "{")),
+        _l(("keyword", "public"), (DEL, ":")),
+        _l("    ", ("type.builtin", "unsigned int"), " ", ("property", "id"), (BR, "{"), ("number", "0"), (BR, "}"), (DEL, ";")),
+        _l("    ", ("function", "Shader"), (BR, "()"), " ", (OP, "="), " ", ("keyword", "delete"), (DEL, ";")),
+        _l("    ", ("type.builtin", "void"), " ", ("function", "use"), (BR, "()"), " ", ("keyword", "const"), " ", (BR, "{")),
+        _l("        ", ("function", "glUseProgram"), (BR, "("), "id", (BR, ")"), (DEL, ";")),
+        _l("        ", ("keyword.control", "for"), " ", (BR, "("), ("type", "auto"), (OP, "&"), " s ", (DEL, ":"), " list", (BR, ")"), " ", (BR, "{")),
+        _l("            ", ("keyword.control", "if"), " ", (BR, "("), "s", (OP, "."), ("property", "ok"), " ", (OP, "&&"), " ", (OP, "!"), "s", (OP, "."), ("function", "empty"), (BR, "()"), (BR, ")"), " ", ("keyword.control", "return"), (DEL, ";")),
+        _l("        ", (BR, "}")),
+        _l("        ", ("variable.builtin", "this"), (OP, "->"), ("property", "id"), " ", (OP, "="), " ", ("number", "0xFF"), (DEL, ";")),
+        _l("    ", (BR, "}")),
+        _l("    ", ("namespace", "std"), (DEL, "::"), ("type", "string"), " name ", (OP, "="), " ", ("string", '"shader'), ("string.escape", "\\n"), ("string", '"'), (DEL, ";")),
+        _l("    ", ("keyword", "static constexpr"), " ", ("type.builtin", "float"), " kPi ", (OP, "="), " ", ("number", "3.14f"), (DEL, ";")),
+        _l("    ", ("type", "Mesh"), (OP, "*"), " mesh ", (OP, "="), " ", ("constant.builtin", "nullptr"), (DEL, ";"), " ", ("boolean", "true")),
+        _l((BR, "}"), (DEL, ";")),
+    ],
+    "TypeScript": [
+        _l(("comment", "// scene loader")),
+        _l(("keyword.import", "import"), " ", (BR, "{"), " Mesh ", (BR, "}"), " ", ("keyword.import", "from"), " ", ("string", '"./mesh"'), (DEL, ";")),
+        _l(("keyword.import", "export"), " ", ("keyword.declaration", "interface"), " ", ("type", "Props"), " ", (BR, "{"), " ", ("property", "size"), (DEL, ":"), " ", ("type.builtin", "number"), (DEL, ";"), " ", (BR, "}")),
+        _l(("keyword.declaration", "const"), " x ", (OP, "="), " foo", (DEL, "."), ("function.method", "bar"), (BR, "("), ("number", "42"), (DEL, ","), " ", ("string", '"text"'), (BR, ")"), (DEL, ";")),
+        _l(("keyword.control", "if"), " ", (BR, "("), "x", (BR, ")"), " ", ("keyword.control", "return"), (DEL, ";")),
+        _l(("keyword.declaration", "class"), " ", ("type.class", "Scene"), " ", ("keyword", "extends"), " ", ("type.class", "Base"), " ", (BR, "{")),
+        _l("    ", ("keyword", "private"), " ", ("property", "meshes"), (DEL, ":"), " ", ("type", "Mesh"), (BR, "[]"), " ", (OP, "="), " ", (BR, "[]"), (DEL, ";")),
+        _l("    ", ("function.method", "add"), (BR, "("), "m", (DEL, ":"), " ", ("type", "Mesh"), (BR, ")"), " ", (BR, "{")),
+        _l("        ", ("variable.special", "this"), (DEL, "."), ("property", "meshes"), (DEL, "."), ("function.method", "push"), (BR, "("), "m", (BR, ")"), (DEL, ";")),
+        _l("    ", (BR, "}")),
+        _l((BR, "}")),
+        _l(("keyword", "async"), " ", ("keyword.declaration", "function"), " ", ("function", "load"), (BR, "("), "url", (DEL, ":"), " ", ("type.builtin", "string"), (BR, ")"), (DEL, ":"), " ", ("type", "Promise"), (OP, "<"), ("type", "Mesh"), (OP, ">"), " ", (BR, "{")),
+        _l("    ", ("keyword.declaration", "const"), " res ", (OP, "="), " ", ("keyword.control", "await"), " ", ("function", "fetch"), (BR, "("), "url", (BR, ")"), (DEL, ";")),
+        _l("    ", ("keyword.control", "return"), " res", (DEL, "."), ("function.method", "json"), (BR, "()"), " ", (OP, "&&"), " ", ("boolean", "true"), (DEL, ";")),
+        _l((BR, "}")),
+    ],
+    "Luau": [
+        _l(("comment", "-- Roblox spawn handler")),
+        _l(("keyword", "local"), " Players ", (OP, "="), " game", (DEL, ":"), ("function.method", "GetService"), (BR, "("), ("string", '"Players"'), (BR, ")")),
+        _l(("keyword", "type"), " ", ("type", "Config"), " ", (OP, "="), " ", (BR, "{"), " ", ("property", "speed"), (DEL, ":"), " ", ("type.builtin", "number"), " ", (BR, "}")),
+        _l(("keyword", "local function"), " ", ("function", "spawn"), (BR, "("), "player", (DEL, ":"), " ", ("type", "Player"), (DEL, ","), " hp", (DEL, ":"), " ", ("type.builtin", "number"), (BR, ")")),
+        _l("    ", ("keyword", "if not"), " player ", ("keyword", "then return end")),
+        _l("    ", ("keyword", "for"), " i ", (OP, "="), " ", ("number", "1"), (DEL, ","), " ", ("number", "10"), " ", ("keyword", "do")),
+        _l("        ", ("keyword", "local"), " part ", (OP, "="), " ", ("constant.namespace", "Instance"), (DEL, "."), ("function", "new"), (BR, "("), ("string", '"Part"'), (BR, ")")),
+        _l("        part", (DEL, "."), ("property", "Position"), " ", (OP, "="), " ", ("type", "Vector3"), (DEL, "."), ("function", "new"), (BR, "("), ("number", "0"), (DEL, ","), " ", ("number", "5"), (DEL, ","), " ", ("number", "0"), (BR, ")")),
+        _l("        ", ("function.builtin", "print"), (BR, "("), ("string", '"spawned"'), (DEL, ","), " ", ("boolean", "true"), (BR, ")")),
+        _l("    ", ("keyword", "end")),
+        _l(("keyword", "end")),
+        _l(("comment", "-- Zed's Luau grammar tags every keyword as plain `keyword`: no control/declaration split")),
+    ],
+}
+
+
+def resolve(syntax, cap, tx):
+    parts = cap.split(".")
+    for i in range(len(parts), 0, -1):
+        k = ".".join(parts[:i])
+        if k in syntax:
+            return syntax[k]
+    return {"color": tx}
+
+
+def render_sample(syntax, tx, lines):
+    out = []
+    for line in lines:
+        row = []
+        for cap, text in line:
+            text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            if not cap:
+                row.append(text)
+                continue
+            style = resolve(syntax, cap, tx)
+            css = f"color:{style['color']}"
+            if style.get("font_style") == "italic":
+                css += ";font-style:italic"
+            if style.get("font_weight"):
+                css += f";font-weight:{style['font_weight']}"
+            row.append(f'<span style="{css}">{text}</span>')
+        out.append("".join(row))
+    return "\n".join(out)
+
+
+def min_distinct(c):
+    pool = SYNTAX_ROLES + ["tx"]
+    return min(delta_e(c[a], c[b]) for i, a in enumerate(pool) for b in pool[i + 1:])
+
+
 def preview_html(pkg, data):
     cards = []
     for fam, v in variants(data):
         c = v["colors"]
-        p = mix(c["tx"], c["bg"], .3)
-        code = (
-            f'<span style="color:{c["cm"]};font-style:italic">// default constructor is not available</span>\n'
-            f'<span style="color:{c["kw"]}">class</span> <span style="color:{c["ty"]}">Shader</span> <span style="color:{p}">{{</span>\n'
-            f'<span style="color:{c["kw"]}">public</span><span style="color:{p}">:</span>\n'
-            f'    <span style="color:{c["ty"]}">unsigned int</span> id<span style="color:{p}">{{</span><span style="color:{c["nu"]}">0</span><span style="color:{p}">}};</span>\n'
-            f'    <span style="color:{c["ty"]}">Shader</span><span style="color:{p}">()</span> = <span style="color:{c["kw"]}">delete</span><span style="color:{p}">;</span>\n'
-            f'    <span style="color:{c["kw"]}">void</span> <span style="color:{c["fn"]}">use</span><span style="color:{p}">()</span> <span style="color:{c["kw"]}">const</span> <span style="color:{p}">{{</span> <span style="color:{c["fn"]}">glUseProgram</span><span style="color:{p}">(</span>id<span style="color:{p}">);</span> <span style="color:{p}">}}</span>\n'
-            f'    <span style="color:{c["ty"]}">std</span>::<span style="color:{c["ty"]}">string</span> name = <span style="color:{c["st"]}">"shader\\n"</span><span style="color:{p}">;</span>\n'
-            f'<span style="color:{p}">}};</span>'
-        )
+        syntax = zed_syntax(c, v.get("options", {}))
+        sw = "".join(f'<i style="background:{c[k]}" title="{k} {c[k]}"></i>' for k in SYNTAX_ROLES)
+        pres = "".join(
+            f'<pre class="lang" data-lang="{lang}">{render_sample(syntax, c["tx"], lines)}</pre>'
+            for lang, lines in SAMPLES.items())
         cards.append(
-            f'<section><h2>{v["name"]}</h2><div class="ed" style="background:{c["bg"]};color:{c["tx"]};border-color:{c["panel"]}">'
-            f'<div class="bar" style="background:{c["panel"]};color:{c["cm"]}">shader.hpp</div><pre>{code}</pre></div></section>')
+            f'<section><h2>{v["name"]} <small>closest pair dE {min_distinct(c):.1f}</small><span class="sw">{sw}</span></h2>'
+            f'<div class="ed" style="background:{c["bg"]};color:{c["tx"]};border-color:{c["panel"]}">'
+            f'<div class="bar" style="background:{c["panel"]};color:{c["cm"]}">sample</div>{pres}</div></section>')
+    langs = "".join(f"<button onclick=\"show('{l}')\">{l}</button>" for l in SAMPLES)
+    first = next(iter(SAMPLES))
     return ("<!doctype html><meta charset=utf-8><title>" + pkg["name"] + " preview</title>"
             "<style>body{font-family:system-ui,sans-serif;background:#888;margin:24px}"
-            "h2{font-size:14px;margin:18px 0 6px;color:#111}.ed{border-radius:8px;overflow:hidden;border:1px solid}"
-            ".bar{padding:6px 12px;font-size:12px}pre{margin:0;padding:12px 16px;font:13px/1.7 ui-monospace,Consolas,monospace}</style>"
-            "<h1 style='font-size:18px'>" + pkg["name"] + "</h1>" + "".join(cards))
+            "h2{font-size:14px;margin:18px 0 6px;color:#111;display:flex;gap:10px;align-items:center}"
+            "h2 small{font-weight:400;opacity:.7}.sw{display:flex;gap:2px}.sw i{width:14px;height:14px;border-radius:3px}"
+            ".ed{border-radius:8px;overflow:hidden;border:1px solid}.bar{padding:6px 12px;font-size:12px}"
+            "pre{margin:0;padding:12px 16px;font:13px/1.7 ui-monospace,Consolas,monospace;display:none}"
+            "button{font:13px system-ui;margin-right:6px;padding:4px 12px}</style>"
+            "<h1 style='font-size:18px'>" + pkg["name"] + "</h1><p>" + langs + "</p>" + "".join(cards) +
+            "<script>function show(l){document.querySelectorAll('pre.lang').forEach(p=>p.style.display=p.dataset.lang===l?'block':'none')}"
+            "show('" + first + "')</script>")
 
 
 # ---------------------------------------------------------------- validation
@@ -414,7 +522,7 @@ def validate(data, ref, themes):
             for b in pool[i + 1:]:
                 d = delta_e(c[a], c[b])
                 if d < r["distinct"]:
-                    warnings.append(f"{name}: {a} and {b} look similar (dE {d:.1f} < {r['distinct']})")
+                    errors.append(f"{name}: {a} and {b} look too similar (dE {d:.1f} < {r['distinct']})")
     names = [v["name"] for _, v in variants(data)]
     dupes = {n for n in names if names.count(n) > 1}
     if dupes:

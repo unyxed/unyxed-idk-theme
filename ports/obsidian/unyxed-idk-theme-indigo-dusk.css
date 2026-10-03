@@ -4,20 +4,20 @@
 
 /* Indigo Dusk Dark */
 .theme-dark {
-  --ctp-custom-rosewater: 240, 205, 174;
-  --ctp-custom-flamingo: 248, 180, 181;
-  --ctp-custom-pink: 230, 159, 189;
-  --ctp-custom-mauve: 255, 158, 155;
+  --ctp-custom-rosewater: 232, 196, 165;
+  --ctp-custom-flamingo: 247, 179, 180;
+  --ctp-custom-pink: 244, 148, 199;
+  --ctp-custom-mauve: 254, 157, 154;
   --ctp-custom-red: 255, 143, 138;
-  --ctp-custom-maroon: 255, 150, 146;
-  --ctp-custom-peach: 245, 192, 137;
+  --ctp-custom-maroon: 254, 150, 146;
+  --ctp-custom-peach: 232, 177, 124;
   --ctp-custom-yellow: 231, 196, 143;
   --ctp-custom-green: 156, 201, 160;
-  --ctp-custom-teal: 126, 208, 218;
-  --ctp-custom-sky: 134, 194, 221;
-  --ctp-custom-sapphire: 138, 188, 222;
+  --ctp-custom-teal: 110, 203, 212;
+  --ctp-custom-sky: 127, 176, 225;
+  --ctp-custom-sapphire: 133, 187, 220;
   --ctp-custom-blue: 143, 180, 224;
-  --ctp-custom-lavender: 192, 160, 240;
+  --ctp-custom-lavender: 191, 159, 237;
   --ctp-custom-text: 232, 230, 242;
   --ctp-custom-subtext1: 204, 202, 217;
   --ctp-custom-subtext0: 179, 178, 195;
@@ -34,20 +34,20 @@
 
 /* Indigo Dusk Light */
 .theme-light {
-  --ctp-custom-rosewater: 111, 73, 42;
-  --ctp-custom-flamingo: 137, 57, 69;
-  --ctp-custom-pink: 148, 64, 117;
-  --ctp-custom-mauve: 178, 63, 67;
+  --ctp-custom-rosewater: 108, 73, 47;
+  --ctp-custom-flamingo: 128, 62, 70;
+  --ctp-custom-pink: 148, 73, 133;
+  --ctp-custom-mauve: 165, 70, 68;
   --ctp-custom-red: 186, 57, 44;
-  --ctp-custom-maroon: 182, 60, 56;
-  --ctp-custom-peach: 148, 89, 24;
+  --ctp-custom-maroon: 176, 64, 56;
+  --ctp-custom-peach: 143, 89, 32;
   --ctp-custom-yellow: 144, 98, 30;
   --ctp-custom-green: 59, 119, 77;
-  --ctp-custom-teal: 25, 113, 127;
-  --ctp-custom-sky: 39, 108, 148;
-  --ctp-custom-sapphire: 45, 105, 156;
+  --ctp-custom-teal: 43, 107, 144;
+  --ctp-custom-sky: 0, 113, 110;
+  --ctp-custom-sapphire: 50, 104, 161;
   --ctp-custom-blue: 53, 102, 168;
-  --ctp-custom-lavender: 104, 66, 192;
+  --ctp-custom-lavender: 57, 78, 149;
   --ctp-custom-text: 42, 43, 74;
   --ctp-custom-subtext1: 71, 72, 100;
   --ctp-custom-subtext0: 97, 97, 122;

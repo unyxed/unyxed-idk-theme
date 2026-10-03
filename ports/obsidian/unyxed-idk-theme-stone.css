@@ -4,20 +4,20 @@
 
 /* Stone */
 .theme-light {
-  --ctp-custom-rosewater: 77, 38, 11;
-  --ctp-custom-flamingo: 96, 18, 30;
-  --ctp-custom-pink: 107, 23, 76;
-  --ctp-custom-mauve: 125, 17, 33;
+  --ctp-custom-rosewater: 77, 36, 8;
+  --ctp-custom-flamingo: 96, 11, 29;
+  --ctp-custom-pink: 70, 61, 0;
+  --ctp-custom-mauve: 125, 6, 31;
   --ctp-custom-red: 127, 14, 7;
-  --ctp-custom-maroon: 126, 16, 20;
-  --ctp-custom-peach: 102, 46, 5;
+  --ctp-custom-maroon: 126, 10, 19;
+  --ctp-custom-peach: 102, 43, 0;
   --ctp-custom-yellow: 124, 81, 14;
   --ctp-custom-green: 39, 102, 49;
-  --ctp-custom-teal: 7, 70, 61;
-  --ctp-custom-sky: 19, 78, 114;
-  --ctp-custom-sapphire: 24, 80, 136;
+  --ctp-custom-teal: 5, 69, 60;
+  --ctp-custom-sky: 0, 65, 95;
+  --ctp-custom-sapphire: 23, 80, 136;
   --ctp-custom-blue: 31, 85, 168;
-  --ctp-custom-lavender: 81, 33, 140;
+  --ctp-custom-lavender: 90, 34, 113;
   --ctp-custom-text: 30, 22, 23;
   --ctp-custom-subtext1: 58, 50, 50;
   --ctp-custom-subtext0: 82, 74, 73;

@@ -46,46 +46,71 @@ python tools/sync_zed_reference.py # update reference/zed.json from Zed main (ne
 
 ## Palette roles
 
-Each variant has these 14 colors. Everything else (about 190 Zed keys, 20 terminal colors,
+Each variant has these 18 colors. Everything else (about 190 Zed keys, 20 terminal colors,
 26 AnuPpuccin colors) is derived from them in `tools/build.py`.
 
 | Role | Used for |
 |---|---|
 | `bg` | editor background, terminal background |
 | `panel` | sidebar, tabs, status bar, title bar (darker than `bg` in dark themes: gives depth) |
-| `tx` | main text, variables, properties, parameters, namespaces |
+| `tx` | main text, variables, parameters, namespaces |
 | `cm` | comments (italic), muted UI text |
-| `kw` | keywords, tags, markdown headings, cursor, primary accent |
+| `kw` | declaration/storage keywords (`class`, `const`, `public`, `local`, `interface`), `variable.special` (`this`), tags, markdown headings, cursor, primary accent |
+| `ct` | control-flow keywords (`if`, `for`, `return`, `try`, `await`) |
+| `im` | import and preprocessor keywords (`import`, `from`, `#include`, `#define`) |
 | `st` | strings |
 | `fn` | functions, methods, JSON keys |
 | `nu` | numbers, constants, booleans, attributes, escapes |
 | `ty` | types: built-in (`unsigned int`, `string`), classes, constructors, JSX components |
+| `pr` | properties and members (`obj.size`, struct fields, object keys) |
+| `op` | operators (`=`, `&&`, `->`) and word operators (`in`, `not`) |
 | `er` | errors, deletions, terminal red |
 | `green`, `yellow`, `blue` | git/diff/status colors and terminal ANSI colors |
 | `sel` | selected rows and highlighted lines |
 
 ## Design rules (the owner's preferences)
 
-- Five syntax hues only: `kw`, `st`, `fn`, `nu`, `ty`. Plain identifiers stay in `tx`. Built-in types
-  must use `ty`, never `tx` and never `kw` (this was a real bug once: `unsigned int` looked like a variable).
-- The five hues must be clearly distinct from each other and from `tx` (the build warns below the
-  `distinct` rule, measured as CIELAB delta E).
+- **Language-agnostic by design.** The themes must look right in every language out of the box, like
+  mainstream themes do. Never tune colors or add syntax keys for one language (the owner's own C++,
+  TypeScript and Luau are only preview samples, not targets). Design on Zed's shared capture names
+  (`keyword`, `keyword.control`, `type.builtin`, `property`, ...), and make sure every split has a sane
+  fallback: a grammar that emits only plain `keyword`, `function`, `type` or `property` must still look
+  complete, and third-party extensions (Luau, GLSL, Odin, ...) must resolve through the longest-prefix
+  rule without needing their own entries. Any new role or mapping must be justified by captures that
+  several grammars in `reference/zed.json` use.
+- Nine syntax hues: `kw`, `ct`, `im`, `st`, `fn`, `nu`, `ty`, `pr`, `op`. Plain identifiers stay in `tx`.
+  Built-in types must use `ty`, never `tx` and never `kw` (this was a real bug once: `unsigned int`
+  looked like a variable). The goal is Gruvbox-style separation: hues spread around the color wheel with
+  matched lightness and chroma per theme, so tokens are told apart at a glance and still look cohesive.
+  Do not fix a weak pair by raising saturation: move hue or lightness, and keep colors calm, never neon.
+- The nine hues and `tx` must be clearly distinct from each other: the build **errors** below the
+  `distinct` rule (default CIELAB delta E 25; every variant currently holds 25 or more, closest pairs 25-28).
+  The same hue slots are used in every theme where possible (`ct` pink, `im` green, `pr` olive,
+  `op` blue/steel, `kw` coral); keep each theme's own `kw/st/fn/nu/ty` identity (`ty` is yellow or green in a few).
+  The mid-tones (Clay, Mauve, Stone) are gamut-limited and use looser slots; keep them at 25 anyway.
+- Keyword split: `keyword` and `keyword.declaration` -> `kw`; `keyword.control` -> `ct`; `keyword.import`,
+  `keyword.preproc`, `preproc`, `import` -> `im`; `keyword.operator` and `operator` -> `op`; `property`,
+  `variable.other.member` -> `pr`. Grammars that emit only plain `keyword` (Luau) show every keyword in `kw`:
+  that is expected, a theme cannot split by token text.
 - Comments are italic and quiet but readable.
 - No pure white or pure black backgrounds. The owner is sensitive to glare and to low-contrast text.
 - Backgrounds carry real color and depth. Avoid: cold blue-gray or flat gray (Nord-like, feels
   lifeless), yellow-brown (Gruvbox-like), neon or high-saturation accents (distracting).
 - Mid-tone themes (Clay, Mauve, Stone) have `appearance: light` on a darker background. They need
   dark, crisp ink. Stone uses stricter per-variant rules (text 11, syntax 7, comment 5) because the
-  owner found softer ink hard to read; prefer that recipe for new mid-tones.
+  owner found softer ink hard to read; prefer that recipe for new mid-tones. Stone no longer has a
+  `distinct` exception: it meets the global 25.
 - Naming: pairs are `<Family> Dark` / `<Family> Light`; standalone themes use a plain name. Names must be
   unique across both repos (Zed, Windows Terminal and Obsidian all key on the name).
 
 ## Adding a theme
 
-1. Add a family (or a variant to a family) in `palettes.json` with all 14 roles.
+1. Add a family (or a variant to a family) in `palettes.json` with all 18 roles.
    `file` is the family's file slug. For a new dark theme, also design its light partner unless the
    owner asks for a standalone theme.
-2. Run `python tools/build.py --fix`, then `python tools/build.py`. Fix any warnings.
+2. Run `python tools/build.py --fix`, then `python tools/build.py`. Fix any warnings and errors.
+   `--fix` only repairs contrast; if `distinct` fails, move hues or lightness by hand (keep each role's
+   usual hue slot, see the design rules).
 3. Open `preview/index.html` and check the new theme next to the existing ones.
 4. Update the theme table in `README.md`, bump `version` in `extension.toml` (minor version for new
    themes, patch for color tweaks), commit.

@@ -13,7 +13,15 @@ all generated from one file: `palettes.json`.
 | Indigo Dusk | Indigo Dusk Dark, Indigo Dusk Light |
 | Mid Tones | Clay, Mauve, Stone |
 
-`preview/index.html` shows every theme side by side (open it in a browser).
+`preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples.
+
+## Syntax colors
+
+Nine syntax hues, spread around the color wheel with matched lightness so tokens are easy to tell apart
+but the theme stays calm: declaration keywords, control flow, imports and preprocessor, strings, functions,
+numbers, types, properties and operators each get their own color. The build enforces a minimum CIELAB
+difference (delta E 25) between them. It works in any language: grammars that emit only plain `keyword`
+(for example Luau) simply show one keyword color.
 
 ## Install
 
