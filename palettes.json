@@ -1,0 +1,277 @@
+{
+  "package": {
+    "id": "unyxed-idk-theme",
+    "name": "Unyxed IDK Themes",
+    "author": "unyxed"
+  },
+  "rules": {
+    "dark": {
+      "text": 7.0,
+      "comment": 4.2,
+      "syntax": 4.5
+    },
+    "light": {
+      "text": 7.0,
+      "comment": 4.2,
+      "syntax": 4.8
+    }
+  },
+  "families": [
+    {
+      "name": "Aubergine",
+      "file": "aubergine",
+      "variants": [
+        {
+          "name": "Aubergine Dark",
+          "appearance": "dark",
+          "colors": {
+            "bg": "#3A2845",
+            "panel": "#2E1F38",
+            "tx": "#EFE5F2",
+            "cm": "#A290B0",
+            "kw": "#FF8FB8",
+            "st": "#FFB48A",
+            "fn": "#7FD4E0",
+            "nu": "#C3A6FF",
+            "ty": "#EFD08A",
+            "er": "#FF8E86",
+            "green": "#9CC9A0",
+            "yellow": "#E7C48F",
+            "blue": "#8FB4E0",
+            "sel": "#4F3A5E"
+          }
+        },
+        {
+          "name": "Aubergine Light",
+          "appearance": "light",
+          "colors": {
+            "bg": "#F2EBF4",
+            "panel": "#E7DDEA",
+            "tx": "#33243B",
+            "cm": "#7A6A84",
+            "kw": "#B4366A",
+            "st": "#9D541B",
+            "fn": "#1C717D",
+            "nu": "#6A42C4",
+            "ty": "#2F5FA8",
+            "er": "#BA392C",
+            "green": "#3B774D",
+            "yellow": "#90621E",
+            "blue": "#3566A8",
+            "sel": "#DDD0E3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lagoon",
+      "file": "lagoon",
+      "variants": [
+        {
+          "name": "Lagoon Dark",
+          "appearance": "dark",
+          "colors": {
+            "bg": "#24393D",
+            "panel": "#1A2B2F",
+            "tx": "#E3EEEA",
+            "cm": "#86A3A1",
+            "kw": "#F29B84",
+            "st": "#EFB38F",
+            "fn": "#7FD3C7",
+            "nu": "#B7A6EB",
+            "ty": "#E8D08E",
+            "er": "#FF8E80",
+            "green": "#9CC9A0",
+            "yellow": "#E7C48F",
+            "blue": "#8FB4E0",
+            "sel": "#35525A"
+          }
+        },
+        {
+          "name": "Lagoon Light",
+          "appearance": "light",
+          "colors": {
+            "bg": "#E8F0EE",
+            "panel": "#DCE7E4",
+            "tx": "#1F3A3F",
+            "cm": "#5D7674",
+            "kw": "#AE4834",
+            "st": "#9B571E",
+            "fn": "#147368",
+            "nu": "#6C55B8",
+            "ty": "#2C5FA0",
+            "er": "#BC392D",
+            "green": "#3B774D",
+            "yellow": "#91631E",
+            "blue": "#3566A8",
+            "sel": "#CBDDD9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Forest",
+      "file": "forest",
+      "variants": [
+        {
+          "name": "Forest Dark",
+          "appearance": "dark",
+          "colors": {
+            "bg": "#2A3A2E",
+            "panel": "#1F2C23",
+            "tx": "#E6EDE0",
+            "cm": "#8CA08C",
+            "kw": "#E58F8F",
+            "st": "#E9BE8A",
+            "fn": "#86C9D6",
+            "nu": "#BBA3E0",
+            "ty": "#A8D9A2",
+            "er": "#FF8F7F",
+            "green": "#9CC9A0",
+            "yellow": "#E7C48F",
+            "blue": "#8FB4E0",
+            "sel": "#3C5242"
+          }
+        },
+        {
+          "name": "Forest Light",
+          "appearance": "light",
+          "colors": {
+            "bg": "#ECF0E6",
+            "panel": "#DFE6D8",
+            "tx": "#26362A",
+            "cm": "#647568",
+            "kw": "#B34149",
+            "st": "#945B1C",
+            "fn": "#1B7182",
+            "nu": "#6B4BB3",
+            "ty": "#2D763E",
+            "er": "#BC392D",
+            "green": "#3C794E",
+            "yellow": "#91631E",
+            "blue": "#3566A8",
+            "sel": "#D2DCC8"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Indigo Dusk",
+      "file": "indigo-dusk",
+      "variants": [
+        {
+          "name": "Indigo Dusk Dark",
+          "appearance": "dark",
+          "colors": {
+            "bg": "#2C2D4A",
+            "panel": "#212239",
+            "tx": "#E8E6F2",
+            "cm": "#9594B8",
+            "kw": "#FF9E9B",
+            "st": "#F5C089",
+            "fn": "#7ED0DA",
+            "nu": "#C0A0F0",
+            "ty": "#9BDBB5",
+            "er": "#FF8F8A",
+            "green": "#9CC9A0",
+            "yellow": "#E7C48F",
+            "blue": "#8FB4E0",
+            "sel": "#3E3F63"
+          }
+        },
+        {
+          "name": "Indigo Dusk Light",
+          "appearance": "light",
+          "colors": {
+            "bg": "#EDECF5",
+            "panel": "#E0DEEE",
+            "tx": "#2A2B4A",
+            "cm": "#6D6C8C",
+            "kw": "#B23F43",
+            "st": "#945918",
+            "fn": "#19717F",
+            "nu": "#6842C0",
+            "ty": "#2A744A",
+            "er": "#BA392C",
+            "green": "#3B774D",
+            "yellow": "#90621E",
+            "blue": "#3566A8",
+            "sel": "#D4D2E8"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mid Tones",
+      "file": "mid-tones",
+      "variants": [
+        {
+          "name": "Clay",
+          "appearance": "light",
+          "colors": {
+            "bg": "#DDCEC8",
+            "panel": "#CFC1BB",
+            "tx": "#463B3C",
+            "cm": "#66585A",
+            "kw": "#862E41",
+            "st": "#724725",
+            "fn": "#255951",
+            "nu": "#653D8B",
+            "ty": "#2B5590",
+            "er": "#882E25",
+            "green": "#326441",
+            "yellow": "#785219",
+            "blue": "#2F5A94",
+            "sel": "#C6B8B3"
+          }
+        },
+        {
+          "name": "Mauve",
+          "appearance": "light",
+          "colors": {
+            "bg": "#D6C7D0",
+            "panel": "#C8BAC2",
+            "tx": "#413642",
+            "cm": "#625560",
+            "kw": "#7E2B4C",
+            "st": "#6B4325",
+            "fn": "#24534F",
+            "nu": "#523E8E",
+            "ty": "#2A528C",
+            "er": "#822C26",
+            "green": "#2F5F3E",
+            "yellow": "#734F18",
+            "blue": "#2D578F",
+            "sel": "#C0B2BB"
+          }
+        },
+        {
+          "name": "Stone",
+          "appearance": "light",
+          "colors": {
+            "bg": "#D9D0CB",
+            "panel": "#CBC2BE",
+            "tx": "#1E1617",
+            "cm": "#5E5052",
+            "kw": "#7D1121",
+            "st": "#662E05",
+            "fn": "#07463D",
+            "nu": "#51218C",
+            "ty": "#143B7E",
+            "er": "#7F0E07",
+            "green": "#276631",
+            "yellow": "#7C510E",
+            "blue": "#1F55A8",
+            "sel": "#BDB4B0"
+          },
+          "rules": {
+            "text": 11.0,
+            "comment": 5.0,
+            "syntax": 7.0,
+            "distinct": 10.0
+          }
+        }
+      ]
+    }
+  ]
+}
