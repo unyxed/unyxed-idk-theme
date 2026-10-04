@@ -41,6 +41,7 @@ extension.toml           Zed extension manifest
 python tools/build.py              # validate and write all outputs
 python tools/build.py --fix        # nudge colors that miss contrast targets, save palettes.json, build
 python tools/build.py --check      # validate only
+python tools/build.py --check -v   # validate and print each theme's worst-case terminal contrast
 python tools/sync_zed_reference.py # update reference/zed.json from Zed main (needs git + network)
 ```
 
@@ -135,6 +136,43 @@ How Zed resolves syntax colors: a capture like `@type.builtin` uses the longest 
 on dot boundaries (`type.builtin`, then `type`). Captures from third-party language extensions
 (Luau, GLSL, etc.) are not in the reference but use the same common names.
 
+## Terminal readability
+
+Programs (CLI agents, `ls`, `git`, compilers, test runners) draw ordinary text with **any** of the
+16 ANSI colors, including black, white and their bright and dim forms. A slot that sits close to
+the background turns that text invisible. This happened once: light themes had `white` at 1.8:1 and
+`bright_white` at 1.1:1, dark themes had `black` at 2.0:1, and an agent's output vanished. So the
+terminal slots are text colors, not decoration, and the build checks them as such.
+
+`ansi()` in `tools/build.py` builds every slot once; Zed's `terminal.*` keys and the Windows
+Terminal schemes both come from it. Rules (build **errors**, contrast measured on `bg`):
+
+| What | Minimum |
+|---|---|
+| every normal and `bright_` slot (black, red, green, yellow, blue, magenta, cyan, white), in Zed and Windows Terminal | 4.5:1 (`ansi`) |
+| every `dim_` slot and `terminal.dim_foreground` | 3.5:1 (`ansi_dim`): faint by design, never invisible |
+| `terminal.foreground`, `terminal.bright_foreground` | the `text` rule (7:1, Stone 11:1) |
+| foreground text on the selection (Zed's player selection over `bg`, Windows Terminal's `selectionBackground`) | 4.5:1 |
+| `black`/`bright_black`, `white`/`bright_white`, and each of those four vs the foreground | delta E 12 (`ansi_sep`) |
+
+- **Greys keep their meaning.** They sit on the line from `bg` to `tx` and beyond. `black` is the
+  readable grey closest to the background (darkest on dark themes, lightest on light ones);
+  `bright_white` is the most emphasised (furthest from the background). On light themes it goes
+  past the foreground when there is room; on dark themes, and on Stone, there is no room, so it
+  sits 12 dE inside the foreground. `bright_black` is the comment color pushed just far enough to
+  be readable, the usual "secondary text" grey, always quieter than the foreground. The low-contrast
+  mid-tones (Clay, Mauve) have too little lightness between the 4.5:1 floor and their text, so
+  their `bright_black` keeps the comment hue with a little more chroma, and their `white` sits
+  past the foreground. The build also checks the order.
+- **Hue slots** are the palette hues. They only move if they miss 4.5:1, and then by the smallest
+  step that passes (darker on light themes, lighter on dark ones, same hue).
+- **Dim slots** are the normal slots blended toward `bg`, but never past 3.5:1.
+- Do not lower these rules to get a build through. If a new theme fails, adjust `tx`, `cm` or the
+  background. `python tools/build.py --check -v` shows where each theme is tightest.
+- Themes only control the 16 ANSI colors. Programs that print 256-color or RGB values bypass them;
+  the README's recommended terminal settings (Zed `minimum_contrast`, Windows Terminal
+  `adjustIndistinguishableColors`) are the safety net for those.
+
 ## Ports
 
 - **Windows Terminal**: one fragment file with every scheme, installed to
@@ -149,6 +187,7 @@ on dot boundaries (`type.builtin`, then `type`). Captures from third-party langu
 ## Before you finish a task
 
 - [ ] `python tools/build.py` passes with no errors and no warnings
+- [ ] `python tools/build.py --check -v`: no terminal slot is near its floor by accident
 - [ ] preview checked for anything that changed visually
 - [ ] README theme table and `extension.toml` version updated if themes were added
 - [ ] shared files mirrored to `unyxed-cocoa-theme` if `tools/`, `install.ps1` or `reference/` changed

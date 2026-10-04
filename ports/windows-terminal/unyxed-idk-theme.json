@@ -7,8 +7,8 @@
       "foreground": "#EFE5F2",
       "cursorColor": "#F68AA1",
       "selectionBackground": "#4F3A5E",
-      "black": "#675770",
-      "brightBlack": "#A290B0",
+      "black": "#9F92A6",
+      "brightBlack": "#C0B1CA",
       "red": "#FF8E86",
       "brightRed": "#FF9F98",
       "green": "#9CC9A0",
@@ -21,8 +21,8 @@
       "brightPurple": "#B3B1F5",
       "cyan": "#6ECDCE",
       "brightCyan": "#84D4D5",
-      "white": "#C2B6C7",
-      "brightWhite": "#F4EDF6"
+      "white": "#AFA2B5",
+      "brightWhite": "#CEC3D3"
     },
     {
       "name": "Aubergine Light",
@@ -30,8 +30,8 @@
       "foreground": "#33243B",
       "cursorColor": "#9F4473",
       "selectionBackground": "#DDD0E3",
-      "black": "#33243B",
-      "brightBlack": "#7A6A84",
+      "black": "#736779",
+      "brightBlack": "#5B4B64",
       "red": "#BA392C",
       "brightRed": "#A43227",
       "green": "#3B774D",
@@ -44,8 +44,8 @@
       "brightPurple": "#51336F",
       "cyan": "#145A75",
       "brightCyan": "#124F67",
-      "white": "#B9AFBC",
-      "brightWhite": "#F8F5FA"
+      "white": "#4D3F54",
+      "brightWhite": "#1B131F"
     },
     {
       "name": "Lagoon Dark",
@@ -53,8 +53,8 @@
       "foreground": "#E3EEEA",
       "cursorColor": "#EB8878",
       "selectionBackground": "#35525A",
-      "black": "#546668",
-      "brightBlack": "#86A3A1",
+      "black": "#92A1A0",
+      "brightBlack": "#AEC3C0",
       "red": "#FF8E80",
       "brightRed": "#FF9F93",
       "green": "#9CC9A0",
@@ -67,8 +67,8 @@
       "brightPurple": "#C2B3EE",
       "cyan": "#81D3C8",
       "brightCyan": "#94DAD0",
-      "white": "#B3C1BF",
-      "brightWhite": "#EBF3F0"
+      "white": "#9CABAA",
+      "brightWhite": "#BFCCC9"
     },
     {
       "name": "Lagoon Light",
@@ -76,8 +76,8 @@
       "foreground": "#1F3A3F",
       "cursorColor": "#A3483F",
       "selectionBackground": "#CBDDD9",
-      "black": "#1F3A3F",
-      "brightBlack": "#5D7674",
+      "black": "#5A7073",
+      "brightBlack": "#3C5553",
       "red": "#BC392D",
       "brightRed": "#A53228",
       "green": "#3B774D",
@@ -90,8 +90,8 @@
       "brightPurple": "#6C4886",
       "cyan": "#137366",
       "brightCyan": "#11655A",
-      "white": "#ACB9BA",
-      "brightWhite": "#F4F8F6"
+      "white": "#3E565A",
+      "brightWhite": "#112023"
     },
     {
       "name": "Forest Dark",
@@ -99,8 +99,8 @@
       "foreground": "#E6EDE0",
       "cursorColor": "#E58F8F",
       "selectionBackground": "#3C5242",
-      "black": "#59675A",
-      "brightBlack": "#8CA08C",
+      "black": "#97A295",
+      "brightBlack": "#B4C3B2",
       "red": "#FF8F7F",
       "brightRed": "#FFA092",
       "green": "#9CC9A0",
@@ -113,8 +113,8 @@
       "brightPurple": "#C6B1E5",
       "cyan": "#87D4D0",
       "brightCyan": "#99DAD7",
-      "white": "#B7C0B4",
-      "brightWhite": "#EEF2E9"
+      "white": "#A0AA9D",
+      "brightWhite": "#C2CBBE"
     },
     {
       "name": "Forest Light",
@@ -122,8 +122,8 @@
       "foreground": "#26362A",
       "cursorColor": "#A8474B",
       "selectionBackground": "#D2DCC8",
-      "black": "#26362A",
-      "brightBlack": "#647568",
+      "black": "#637064",
+      "brightBlack": "#435447",
       "red": "#BC392D",
       "brightRed": "#A53228",
       "green": "#3C794E",
@@ -136,8 +136,8 @@
       "brightPurple": "#5E4A89",
       "cyan": "#0E7178",
       "brightCyan": "#0C636A",
-      "white": "#B1B8AE",
-      "brightWhite": "#F6F8F2"
+      "white": "#435145",
+      "brightWhite": "#151D17"
     },
     {
       "name": "Indigo Dusk Dark",
@@ -145,8 +145,8 @@
       "foreground": "#E8E6F2",
       "cursorColor": "#FE9D9A",
       "selectionBackground": "#3E3F63",
-      "black": "#5B5B74",
-      "brightBlack": "#9594B8",
+      "black": "#9595A8",
+      "brightBlack": "#B5B3CE",
       "red": "#FF8F8A",
       "brightRed": "#FFA09C",
       "green": "#9CC9A0",
@@ -159,8 +159,8 @@
       "brightPurple": "#C9ADF0",
       "cyan": "#6ECBD4",
       "brightCyan": "#84D3DA",
-      "white": "#B9B8C8",
-      "brightWhite": "#EFEEF6"
+      "white": "#A4A3B6",
+      "brightWhite": "#C5C4D3"
     },
     {
       "name": "Indigo Dusk Light",
@@ -168,8 +168,8 @@
       "foreground": "#2A2B4A",
       "cursorColor": "#A54644",
       "selectionBackground": "#D4D2E8",
-      "black": "#2A2B4A",
-      "brightBlack": "#6D6C8C",
+      "black": "#686981",
+      "brightBlack": "#4E4E6E",
       "red": "#BA392C",
       "brightRed": "#A43227",
       "green": "#3B774D",
@@ -182,8 +182,8 @@
       "brightPurple": "#324583",
       "cyan": "#2B6B90",
       "brightCyan": "#265E7F",
-      "white": "#B2B2C2",
-      "brightWhite": "#F6F6FA"
+      "white": "#454662",
+      "brightWhite": "#19192B"
     },
     {
       "name": "Clay",
@@ -191,8 +191,8 @@
       "foreground": "#463B3C",
       "cursorColor": "#862D41",
       "selectionBackground": "#C6B8B3",
-      "black": "#463B3C",
-      "brightBlack": "#66585A",
+      "black": "#635757",
+      "brightBlack": "#644248",
       "red": "#882E25",
       "brightRed": "#782821",
       "green": "#326441",
@@ -205,8 +205,8 @@
       "brightPurple": "#54336F",
       "cyan": "#255B55",
       "brightCyan": "#21504B",
-      "white": "#B0A29E",
-      "brightWhite": "#EEE6E4"
+      "white": "#292223",
+      "brightWhite": "#0A0808"
     },
     {
       "name": "Mauve",
@@ -214,8 +214,8 @@
       "foreground": "#413642",
       "cursorColor": "#7E2B4C",
       "selectionBackground": "#C0B2BB",
-      "black": "#413642",
-      "brightBlack": "#625560",
+      "black": "#5E525E",
+      "brightBlack": "#5B3E57",
       "red": "#822C26",
       "brightRed": "#722721",
       "green": "#2F5F3E",
@@ -228,8 +228,8 @@
       "brightPurple": "#503074",
       "cyan": "#235753",
       "brightCyan": "#1F4D49",
-      "white": "#A99BA5",
-      "brightWhite": "#EAE3E8"
+      "white": "#251F26",
+      "brightWhite": "#070608"
     },
     {
       "name": "Stone",
@@ -237,8 +237,8 @@
       "foreground": "#1E1617",
       "cursorColor": "#7D061F",
       "selectionBackground": "#BDB4B0",
-      "black": "#1E1617",
-      "brightBlack": "#5E5052",
+      "black": "#605857",
+      "brightBlack": "#473B3D",
       "red": "#7F0011",
       "brightRed": "#70000F",
       "green": "#0E4001",
@@ -251,8 +251,8 @@
       "brightPurple": "#500042",
       "cyan": "#004543",
       "brightCyan": "#003D3B",
-      "white": "#A19895",
-      "brightWhite": "#ECE8E5"
+      "white": "#534B4A",
+      "brightWhite": "#372F2F"
     }
   ]
 }

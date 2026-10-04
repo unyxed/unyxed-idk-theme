@@ -5,6 +5,7 @@ Usage:
     python tools/build.py          # validate, then write all outputs
     python tools/build.py --fix    # nudge colors that miss contrast targets, save palettes.json, then build
     python tools/build.py --check  # validate only, write nothing (exit 1 on errors)
+    python tools/build.py --check -v  # also print the worst-case terminal contrast per theme
 
 Outputs (all generated, never edit by hand):
     themes/<family>.json                      Zed theme families
@@ -29,7 +30,10 @@ SCHEMA = "https://zed.dev/schema/themes/v0.2.0.json"
 HUES = ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
 ROLES = ["bg", "panel", "tx", "cm", "sel", "accent"] + HUES
 DEFAULT_RULES = {"text": 7.0, "comment": 4.2, "syntax": 4.5,
-                 "distinct": 25.0, "chroma": 45.0, "spread": 20.0}
+                 "distinct": 25.0, "chroma": 45.0, "spread": 20.0,
+                 # terminal: programs draw ordinary text with any ANSI slot (see AGENTS.md)
+                 "ansi": 4.5, "ansi_dim": 3.5, "ansi_sep": 12.0}
+ANSI_NAMES = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 
 # Zed's Gruvbox syntax structure: which keys share a hue. Copied from reference/gruvbox.json,
 # and the build checks it still matches that file. "text" = the plain editor text color.
@@ -108,6 +112,23 @@ def lab(h):
     return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
 
 
+def lab_hex(L, a, b):
+    """CIELAB to hex, or None when the color is outside sRGB."""
+    fy = (L + 16) / 116
+    fx, fz = fy + a / 500, fy - b / 200
+
+    def finv(t):
+        return t ** 3 if t ** 3 > 0.008856 else (t - 16 / 116) / 7.787
+    X, Y, Z = finv(fx) * 0.95047, finv(fy), finv(fz) * 1.08883
+    rgb = (3.2404542 * X - 1.5371385 * Y - 0.4985314 * Z,
+           -0.9692660 * X + 1.8760108 * Y + 0.0415560 * Z,
+           0.0556434 * X - 0.2040259 * Y + 1.0572252 * Z)
+    if any(v < -0.001 or v > 1.001 for v in rgb):
+        return None
+    rgb = [min(max(v, 0), 1) for v in rgb]
+    return r2h([255 * (12.92 * v if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055) for v in rgb])
+
+
 def chroma(h):
     _, a, b = lab(h)
     return math.hypot(a, b)
@@ -175,24 +196,80 @@ def is_dark(v):
 
 
 # ---------------------------------------------------------------- terminal colors
-def ansi(c, dark, tbg):
-    tx = c["tx"]
-    base = {
-        "black": mix(c["bg"], tx, 0.25) if dark else tx,
-        "red": c["red"], "green": c["green"], "yellow": c["yellow"],
-        "blue": c["blue"], "magenta": c["purple"], "cyan": c["aqua"],
-        "white": mix(c["bg"], tx, 0.75) if dark else mix(c["bg"], tx, 0.3),
-    }
+def ansi_greys(c, dark, r):
+    """The four grey slots, placed on the line bg -> tx -> (white on dark, black on light).
+
+    Programs print ordinary text with these, so every one must clear the `ansi` contrast floor,
+    stay `ansi_sep` delta E away from the foreground and from its own bright/normal partner, and
+    keep the natural order: the slot nearest the background is `black` (darkest grey on dark
+    themes, lightest on light ones), `bright_white` is the most emphasised (furthest from bg)."""
+    bg, tx, floor, sep = c["bg"], c["tx"], r["ansi"], r["ansi_sep"]
+    far = "#FFFFFF" if dark else "#000000"
+    # line[0] = bg, line[200] = tx, line[400] = white/black: ordered from the background outward
+    line = [mix(bg, tx, i / 200) for i in range(201)] + [mix(tx, far, i / 200) for i in range(1, 201)]
+    low = next(i for i in range(201) if contrast(line[i], bg) >= floor)  # first readable step
+
+    def away(i, *cols):
+        return all(delta_e(line[i], x) >= sep for x in cols)
+
+    def pick(indices, *cols):
+        return next((i for i in indices if away(i, *cols)), None)
+
+    black = low
+    # white sits between black and the foreground (as close to the foreground as allowed) and
+    # bright_white beyond the foreground, if the gamut leaves room. Squeezed mid-tones put white
+    # beyond the foreground too rather than reuse black's grey. Otherwise (no room beyond the
+    # foreground) bright_white is the closest step below it and white the next one down.
+    not_black = [i for i in range(200, low - 1, -1) if delta_e(line[i], line[black]) >= sep / 2]
+    white = pick(not_black, tx)
+    bw = pick(range(201, 401), tx)
+    if bw is not None and white is None:
+        white = bw
+        bw = pick(range(white + 1, 401), tx, line[white])
+    if bw is None:
+        bw = pick(range(199, low - 1, -1), tx)
+        if bw is None:
+            return {k: tx for k in ("black", "bright_black", "white", "bright_white")}  # validator reports it
+        white = pick([i for i in range(bw - 1, low - 1, -1) if delta_e(line[i], line[black]) >= sep / 2],
+                     tx, line[bw])
+        if white is None:
+            white = pick(range(bw - 1, low - 1, -1), tx, line[bw])
+    # bright_black: the comment color, pushed toward the text only as far as floor and separation need
+    def fits(x):
+        return (x is not None and floor <= contrast(x, bg) < contrast(tx, bg)
+                and all(delta_e(x, y) >= sep for y in (line[black], tx)))
+    bblack = next((x for x in (mix(c["cm"], tx, i / 100) for i in range(101)) if fits(x)), None)
+    if bblack is None:
+        # Too little lightness between the floor and the text (low-contrast mid-tones): keep the
+        # comment hue and add the least chroma that makes it distinct from both neighbours.
+        L0, L1 = lab(tx)[0], lab(line[black])[0]
+        _, a, b = lab(c["cm"])
+        hue, c0 = math.atan2(b, a), math.hypot(a, b)
+        grid = ((abs(C - c0), abs(L - (L0 + L1) / 2), lab_hex(L, C * math.cos(hue), C * math.sin(hue)))
+                for C in range(0, 41) for L in [L0 + (L1 - L0) * i / 40 for i in range(41)])
+        bblack = next((x for _, _, x in sorted(grid, key=lambda g: g[:2]) if fits(x)), tx)
+    return {"black": line[black], "bright_black": bblack,
+            "white": line[white] if white is not None else tx, "bright_white": line[bw]}
+
+
+def ansi(c, dark, r):
+    """All 24 ANSI slots (normal, bright_, dim_). Feeds Zed's terminal.ansi.* and Windows Terminal."""
+    bg, floor = c["bg"], r["ansi"]
+    anchor = "#FFFFFF" if dark else "#000000"
+    greys = ansi_greys(c, dark, r)
+    hues = {"red": c["red"], "green": c["green"], "yellow": c["yellow"],
+            "blue": c["blue"], "magenta": c["purple"], "cyan": c["aqua"]}
     out = {}
-    for name, col in base.items():
-        out[name] = col
-        if name == "black":
-            out["bright_black"] = c["cm"]
-        elif name == "white":
-            out["bright_white"] = mix(tx, "#FFFFFF", 0.3) if dark else mix(c["bg"], "#FFFFFF", 0.5)
+    for name in ANSI_NAMES:
+        if name in hues:  # unchanged unless below the floor; then the smallest step that passes
+            col = toward_contrast(hues[name], bg, floor, anchor)
+            bright = toward_contrast(mix(col, "#FFFFFF", 0.15) if dark else mix(col, "#000000", 0.12),
+                                     bg, floor, anchor)
         else:
-            out["bright_" + name] = mix(col, "#FFFFFF", 0.15) if dark else mix(col, "#000000", 0.12)
-        out["dim_" + name] = mix(col, tbg, 0.35)
+            col, bright = greys[name], greys["bright_" + name]
+        out[name], out["bright_" + name] = col, bright
+        # faint by design, never invisible: blend toward bg only as far as the dim floor allows
+        out["dim_" + name] = soft(col, bg, 0.35, r["ansi_dim"])
     return out
 
 
@@ -314,7 +391,7 @@ def zed_theme(v):
         S[f"vim.{mode}.foreground"] = on(col)
     S["vim.yank.background"] = alpha(yellow, .35)
     S["vim.helix_jump_label.foreground"] = acc
-    for k, col in ansi(c, dark, bg).items():
+    for k, col in ansi(c, dark, v["_rules"]).items():
         S["terminal.ansi." + k] = col
 
     def stat(name, col):
@@ -336,7 +413,7 @@ def zed_theme(v):
 # ---------------------------------------------------------------- windows terminal
 def wt_scheme(v):
     c, dark = v["colors"], is_dark(v)
-    a = ansi(c, dark, c["bg"])
+    a = ansi(c, dark, v["_rules"])
     wt = {"name": v["name"], "background": c["bg"], "foreground": c["tx"],
           "cursorColor": c["accent"], "selectionBackground": c["sel"]}
     names = {"black": "black", "red": "red", "green": "green", "yellow": "yellow",
@@ -651,8 +728,78 @@ def group_of_keys():
     return out
 
 
-def validate(data, ref, gruv, themes):
+def over(bg, rgba):
+    """Opaque color of a #RRGGBBAA overlay drawn on bg."""
+    return mix(bg, rgba[:7], int(rgba[7:9], 16) / 255 if len(rgba) == 9 else 1)
+
+
+def terminal_check(v, style):
+    """Terminal readability (see AGENTS.md). Returns (problems, worst-case row for the -v table)."""
+    c, r, name, bg, dark = v["colors"], v["_rules"], v["name"], v["colors"]["bg"], is_dark(v)
+    wt = wt_scheme(v)
+    probs = []
+    slot = {k[len("terminal.ansi."):]: col for k, col in style.items()
+            if k.startswith("terminal.ansi.") and k != "terminal.ansi.background"}
+    text_slots = {k: col for k, col in slot.items() if not k.startswith("dim_")}
+    text_slots.update({"wt." + k: col for k, col in wt.items()
+                       if k not in ("name", "background", "foreground", "cursorColor", "selectionBackground")})
+    dim_slots = {k: col for k, col in slot.items() if k.startswith("dim_")}
+    dim_slots["dim_foreground"] = style["terminal.dim_foreground"]
+    fg_slots = {"foreground": style["terminal.foreground"], "bright_foreground": style["terminal.bright_foreground"],
+                "wt.foreground": wt["foreground"]}
+    sel_text = {"zed selection": contrast(c["tx"], over(bg, style["players"][0]["selection"])),
+                "wt selectionBackground": contrast(wt["foreground"], wt["selectionBackground"])}
+
+    def worst(slots, floor, label):
+        k, col = min(slots.items(), key=lambda kv: contrast(kv[1], bg))
+        got = contrast(col, bg)
+        for kk, cc in slots.items():
+            if contrast(cc, bg) + 1e-9 < floor:
+                probs.append(f"{name}: terminal {kk} {cc} is {contrast(cc, bg):.2f}:1 on bg, needs {floor} ({label})")
+        return k, got
+    w_text = worst(text_slots, r["ansi"], "programs print text with it")
+    w_dim = worst(dim_slots, r["ansi_dim"], "faint, never invisible")
+    w_fg = worst(fg_slots, r["text"], "terminal text")
+    for what, got in sel_text.items():
+        if got + 1e-9 < r["ansi"]:
+            probs.append(f"{name}: text on {what} is {got:.2f}:1, needs {r['ansi']}")
+    # greys stay meaningful: partners apart, all apart from the foreground, natural order
+    fg = c["tx"]
+    pairs = [("black", "bright_black"), ("white", "bright_white")] + \
+            [(g, "fg") for g in ("black", "bright_black", "white", "bright_white")]
+    seps = []
+    for a, b in pairs:
+        d = delta_e(slot[a], fg if b == "fg" else slot[b])
+        seps.append(d)
+        if d + 1e-9 < r["ansi_sep"]:
+            probs.append(f"{name}: terminal {a} and {b} look alike (dE {d:.1f} < {r['ansi_sep']})")
+    greys = ("black", "bright_black", "white", "bright_white")
+    L = {g: lab(slot[g])[0] for g in greys}
+    sign = 1 if dark else -1  # "brighter" means further from the background
+    if any(sign * (L["black"] - L[g]) > 0.5 for g in greys):
+        probs.append(f"{name}: terminal black is not the grey closest to the background")
+    if any(sign * (L[g] - L["bright_white"]) > 0.5 for g in greys):
+        probs.append(f"{name}: terminal bright_white is not the most emphasised grey")
+    if contrast(slot["bright_black"], bg) >= contrast(fg, bg):
+        probs.append(f"{name}: terminal bright_black is not quieter than the foreground")
+    row = (name, w_text, w_dim, w_fg, min(sel_text.values()), min(seps))
+    return probs, row
+
+
+def terminal_table(rows):
+    out = [f"{'theme':20s} {'worst text slot':26s} {'worst dim slot':24s} {'worst fg':22s} {'on sel':>6s} {'grey dE':>7s}"]
+    for name, (tk, tv), (dk, dv), (fk, fv), sel, sep in rows:
+        out.append(f"{name:20s} {tk:18s}{tv:6.2f}:1 {dk:16s}{dv:6.2f}:1 {fk:14s}{fv:6.2f}:1 {sel:6.2f} {sep:7.1f}")
+    return "\n".join(out)
+
+
+def validate(data, ref, gruv, themes, rows=None):
     errors, warnings = [], []
+    for (_, v), t in zip(variants(data), themes):
+        probs, row = terminal_check(v, t["style"])
+        errors.extend(probs)
+        if rows is not None:
+            rows.append(row)
     want = set(ref["color_keys"]) | set(ref["status_keys"])
     pending = []
     for fam, v in variants(data):
@@ -761,6 +908,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--fix", action="store_true", help="adjust failing colors and save palettes.json")
     ap.add_argument("--check", action="store_true", help="validate only, write nothing")
+    ap.add_argument("-v", "--verbose", action="store_true", help="print the per-theme terminal contrast table")
     args = ap.parse_args()
 
     data, ref, gruv = load()
@@ -774,7 +922,10 @@ def main():
 
     themes_by_family = {f["file"]: [zed_theme(v) for v in f["variants"]] for f in data["families"]}
     all_themes = [t for ts in themes_by_family.values() for t in ts]
-    errors, warnings = validate(data, ref, gruv, all_themes)
+    rows = []
+    errors, warnings = validate(data, ref, gruv, all_themes, rows)
+    if args.verbose:
+        print(terminal_table(rows) + "\n")
     for w in warnings:
         print("warning:", w)
     for e in errors:

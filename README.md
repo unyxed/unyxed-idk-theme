@@ -45,6 +45,25 @@ Pick a theme with Ctrl+K, Ctrl+T. To follow the system light/dark mode:
 
 If PowerShell refuses to run the script: `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Vault "..."`.
 
+## Recommended terminal settings
+
+Every terminal color in these themes is readable on its background (the build enforces at least
+4.5:1 for all 16 ANSI colors and 3.5:1 for the dim ones). But a theme can only control those 16
+colors. Programs that print 256-color or RGB values pick their own colors and can still land on
+something unreadable. These settings are the safety net:
+
+**Zed** (`settings.json`). The default is 45, which Zed documents as the floor for large text only:
+
+```json
+"terminal": { "minimum_contrast": 75 }
+```
+
+**Windows Terminal** (`settings.json`, under `profiles.defaults`):
+
+```json
+"adjustIndistinguishableColors": "always"
+```
+
 ## Update after a change
 
 ```powershell
