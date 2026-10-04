@@ -11,7 +11,8 @@ Outputs (all generated, never edit by hand):
     themes/<family>.json                      Zed theme families
     ports/windows-terminal/<package-id>.json  Windows Terminal fragment with every scheme
     ports/obsidian/<package-id>-<family>.css  AnuPpuccin snippets, one per family
-    preview/index.html                        Static preview of every variant, next to Zed's Gruvbox
+    ports/claude-code/<theme>.json            Claude Code custom themes (~/.claude/themes)
+    ports/opencode/<theme>.json               opencode themes (~/.config/opencode/themes)
 
 Requires Python 3.9+, no third-party packages.
 """
@@ -471,152 +472,148 @@ def obsidian_css(pkg, title, vs):
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------- preview
-# Samples are lists of lines; a line is a list of (capture, text). Captures are the ones Zed's
-# grammars really emit (C++ and TypeScript: Zed's highlights.scm; Luau: the Luau extension),
-# resolved with Zed's longest-prefix rule, so the preview shows what Zed will show. A bare string
-# is plain text. These languages are illustrations only: the theme must work for every language.
-def _l(*parts):
-    return [p if isinstance(p, tuple) else ("", p) for p in parts]
+# ---------------------------------------------------------------- claude code
+# Custom theme files for ~/.claude/themes/<slug>.json. Claude Code draws on the terminal's own
+# background, so these assume the matching Windows Terminal scheme (terminal bg = `bg`).
+def readable(col, bg, floor, dark):
+    """col, nudged away from bg (same hue) until it reaches `floor` contrast."""
+    return toward_contrast(col, bg, floor, "#FFFFFF" if dark else "#000000")
 
 
-BR, DL, OP, PS = "punctuation.bracket", "punctuation.delimiter", "operator", "punctuation.special"
-KW, KC, KD, KI = "keyword", "keyword.control", "keyword.declaration", "keyword.import"
-TY, TB, FN, ST, NU, PR = "type", "type.builtin", "function", "string", "number", "property"
-VA, VP = "variable", "variable.parameter"
-SAMPLES = {
-    "C++": [
-        _l(("comment", "// OpenGL shader wrapper")),
-        _l(("keyword.preproc", "#include"), " ", (ST, "<vector>")),
-        _l(("keyword.preproc", "#define"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", (NU, "8")),
-        _l(""),
-        _l((KW, "namespace"), " ", ("namespace", "gfx"), " ", (BR, "{")),
-        _l((KW, "class"), " ", (TY, "Shader"), " ", (BR, "{"), " ", (KW, "public"), (DL, ":"), " ",
-           (TB, "unsigned int"), " ", (PR, "id"), (BR, "{"), (NU, "0"), (BR, "}"), (DL, ";"), " ",
-           (FN, "Shader"), (BR, "()"), " ", (OP, "="), " ", (KW, "delete"), (DL, ";")),
-        _l("  ", (TB, "void"), " ", (FN, "use"), (BR, "()"), " ", (KW, "const"), " ", (BR, "{"), " ",
-           (FN, "glUseProgram"), (BR, "("), (VA, "id"), (BR, ")"), (DL, ";"), " ", (BR, "}"), " ", (BR, "}"), (DL, ";")),
-        _l(""),
-        _l((KW, "enum class"), " ", (TY, "Mode"), " ", (BR, "{"), " ", (VA, "Fill"), (DL, ","), " ", (VA, "Line"), " ", (BR, "}"), (DL, ";")),
-        _l((KW, "template"), " ", (OP, "<"), (KW, "typename"), " ", (TY, "T"), (OP, ">"),
-           " ", (KW, "struct"), " ", (TY, "Light"), " ", (DL, ":"), " ", (KW, "public"), " ", (TY, "Base"), " ", (BR, "{")),
-        _l("  ", (BR, "[["), ("attribute", "nodiscard"), (BR, "]]"), " ", (TB, "bool"), " ", (FN, "on"), (BR, "()"), " ",
-           (KW, "const noexcept"), " ", (BR, "{"), " ", (KC, "return"), " ", ("variable.builtin", "this"), (OP, "->"),
-           (PR, "id"), " ", (OP, "!="), " ", (NU, "0"), (DL, ";"), " ", (BR, "}")),
-        _l((BR, "}"), (DL, ";")),
-        _l(("function.builtin", "static_assert"), (BR, "("), (KW, "sizeof"), (BR, "("), (TY, "Light"), (BR, ")"), " ",
-           (OP, ">"), " ", (NU, "0"), (BR, ")"), (DL, ";")),
-        _l(""),
-        _l((TB, "float"), " ", (FN, "scale"), (BR, "("), (KW, "const"), " ", (TY, "Mesh"), (OP, "&"), " ", (VA, "mesh"),
-           (DL, ","), " ", (TB, "float"), " ", (VA, "k"), (BR, ")"), " ", (BR, "{")),
-        _l("  ", ("namespace", "std"), (DL, "::"), (TY, "string"), " ", (VA, "name"), " ", (OP, "="), " ",
-           (ST, '"mesh'), ("string.escape", "\\n"), (ST, '"'), (DL, ";")),
-        _l("  ", (KC, "for"), " ", (BR, "("), (TY, "auto"), (OP, "&"), " ", (VA, "v"), " ", (DL, ":"), " ",
-           (VA, "mesh"), (OP, "."), (PR, "verts"), (BR, ")"), " ", (BR, "{")),
-        _l("    ", (KC, "if"), " ", (BR, "("), (VA, "v"), (OP, "."), (PR, "y"), " ", (OP, "<"), " ", (NU, "0.5f"), " ",
-           (OP, "&&"), " ", (OP, "!"), (VA, "mesh"), (OP, "."), (FN, "empty"), (BR, "()"), (BR, ")"), " ", (KC, "continue"), (DL, ";")),
-        _l("    ", (VA, "v"), (OP, "."), (PR, "x"), " ", (OP, "*="), " ", (VA, "k"), (DL, ";")),
-        _l("  ", (BR, "}")),
-        _l("  ", (TY, "auto"), (OP, "*"), " ", (VA, "p"), " ", (OP, "="), " ", ("constant.builtin", "nullptr"), (DL, ";"), " ",
-           (TB, "bool"), " ", (VA, "ok"), " ", (OP, "="), " ", ("boolean", "true"), (DL, ";")),
-        _l("  ", (KC, "return"), " ", (VA, "k"), " ", (OP, ">"), " ", (NU, "1.0"), " ", (OP, "?"), " ", (VA, "k"), " ",
-           (OP, ":"), " ", ("constant.builtin", "MAX_LIGHTS"), " ", (OP, "+"), " ", (NU, "0x1F"), (DL, ";"),
-           " ", ("comment", "// ternary")),
-        _l((BR, "}")),
-        _l((BR, "}"), " ", ("comment", "// namespace gfx")),
-    ],
-    "TypeScript": [
-        _l(("comment", "// scene loader")),
-        _l((KI, "import"), " ", (BR, "{"), " ", (TY, "Mesh"), (DL, ","), " ", (KD, "type"), " ", (TY, "Props"), " ",
-           (BR, "}"), " ", (KI, "from"), " ", (ST, '"./mesh"'), (DL, ";")),
-        _l((KI, "export"), " ", (KD, "interface"), " ", (TY, "Config"), " ", (BR, "{"), " ", (PR, "size"), (PS, ":"), " ",
-           (TB, "number"), (DL, ";"), " ", (PR, "name"), (PS, "?"), (PS, ":"), " ", (TB, "string"), " ", (BR, "}")),
-        _l(""),
-        _l((KD, "const"), " ", (VA, "x"), " ", (OP, "="), " ", (VA, "foo"), (DL, "."), ("function.method", "bar"),
-           (BR, "("), (NU, "42"), (DL, ","), " ", (ST, '"text"'), (BR, ")"), " ", (OP, "+"), " ", (NU, "1"), (DL, ";"), " ",
-           (KC, "if"), " ", (BR, "("), (VA, "x"), (BR, ")"), " ", (KC, "return"), (DL, ";")),
-        _l(""),
-        _l((KD, "class"), " ", ("type.class", "Scene"), " ", (KW, "extends"), " ", ("type.class", "Base"), " ",
-           (KW, "implements"), " ", (TY, "Config"), " ", (BR, "{")),
-        _l("  ", (KW, "private"), " ", (PR, "meshes"), (PS, ":"), " ", (TY, "Mesh"), (BR, "[]"), " ", (OP, "="), " ",
-           (BR, "[]"), (DL, ";")),
-        _l("  ", (KW, "static readonly"), " ", (PR, "MAX"), " ", (OP, "="), " ", (NU, "8"), (DL, ";")),
-        _l("  ", ("constructor", "constructor"), (BR, "("), (KW, "public"), " ", (VP, "size"), (PS, ":"), " ",
-           (TB, "number"), (BR, ")"), " ", (BR, "{"), " ", ("variable.special", "super"), (BR, "()"), (DL, ";"), " ", (BR, "}")),
-        _l("  ", ("function.method", "add"), (BR, "("), (VP, "m"), (PS, ":"), " ", (TY, "Mesh"), (BR, ")"), (PS, ":"),
-           " ", (TB, "void"), " ", (BR, "{"), " ", ("variable.special", "this"), (DL, "."), (PR, "meshes"), (DL, "."),
-           ("function.method", "push"), (BR, "("), (VA, "m"), (BR, ")"), (DL, ";"), " ", (BR, "}")),
-        _l((BR, "}")),
-        _l(""),
-        _l((KW, "async"), " ", (KD, "function"), " ", (FN, "load"), (BR, "("), (VP, "url"), (PS, ":"), " ", (TB, "string"),
-           (BR, ")"), (PS, ":"), " ", (TY, "Promise"), (BR, "<"), (TY, "Mesh"), " ", (PS, "|"), " ", (TB, "null"), (BR, ">"),
-           " ", (BR, "{")),
-        _l("  ", (KD, "const"), " ", (VA, "res"), " ", (OP, "="), " ", (KC, "await"), " ", (FN, "fetch"), (BR, "("),
-           (ST, "`"), (PS, "${"), (VA, "url"), (PS, "}"), (ST, "/scene?v="), (PS, "${"), (NU, "2"), (PS, "}"), (ST, "`"),
-           (BR, ")"), (DL, ";")),
-        _l("  ", (KD, "const"), " ", (VA, "re"), " ", (OP, "="), " ", ("string.regex", "/\\d+\\.obj$/"),
-           ("keyword.operator.regex", "gi"), (DL, ";")),
-        _l("  ", (KC, "return"), " ", (VA, "res"), (DL, "."), (PR, "ok"), " ", (OP, "?"), " ", (VA, "res"), (DL, "."),
-           ("function.method", "json"), (BR, "()"), " ", (OP, ":"), " ", ("constant.builtin", "null"), (DL, ";")),
-        _l((BR, "}")),
-    ],
-    "Luau": [
-        _l(("comment.doc", "--- Roblox spawn handler")),
-        _l((KW, "local"), " ", (VA, "Players"), " ", (OP, "="), " ", (VA, "game"), (DL, ":"), (FN, "GetService"),
-           (BR, "("), (ST, '"Players"'), (BR, ")")),
-        _l((KW, "local"), " ", ("constant", "MAX_HP"), " ", (OP, "="), " ", (NU, "100")),
-        _l((KW, "type"), " ", (TY, "Config"), " ", (OP, "="), " ", (BR, "{"), " ", (VA, "speed"), (DL, ":"), " ",
-           (TY, "number"), (DL, ","), " ", (VA, "name"), (DL, ":"), " ", (TY, "string"), (OP, "?"), " ", (BR, "}")),
-        _l(""),
-        _l((KW, "local"), " ", (VA, "part"), " ", (OP, "="), " ", (VA, "Instance"), (DL, "."), (FN, "new"), (BR, "("),
-           (ST, '"Part"'), (BR, ")"), " ", (VA, "part"), (DL, "."), (PR, "Anchored"), " ", (OP, "="), " ", ("boolean", "true")),
-        _l(""),
-        _l((KW, "local function"), " ", (FN, "spawn"), (BR, "("), (VP, "player"), (DL, ":"), " ", (TY, "Player"),
-           (DL, ","), " ", (VP, "hp"), (DL, ":"), " ", (TY, "number"), (BR, ")"), (DL, ":"), " ", (TY, "boolean")),
-        _l("  ", (KW, "if"), " ", (OP, "not"), " ", (VA, "player"), " ", (OP, "or"), " ", (VA, "hp"), " ", (OP, "<="), " ",
-           (NU, "0"), " ", (KW, "then return"), " ", ("boolean", "false"), " ", (KW, "end")),
-        _l("  ", (KW, "for"), " ", (VA, "i"), " ", (OP, "="), " ", (NU, "1"), (DL, ","), " ", (NU, "10"), " ", (KW, "do")),
-        _l("    ", (KW, "local"), " ", (VA, "p"), " ", (OP, "="), " ", (VA, "part"), (DL, ":"), (FN, "Clone"), (BR, "()")),
-        _l("    ", (VA, "p"), (DL, "."), (PR, "Position"), " ", (OP, "="), " ", (VA, "Vector3"), (DL, "."), (FN, "new"),
-           (BR, "("), (NU, "0"), (DL, ","), " ", (VA, "i"), " ", (OP, "*"), " ", (NU, "5"), (DL, ","), " ", (NU, "0"), (BR, ")")),
-        _l("    ", (VA, "p"), (DL, "."), (PR, "Name"), " ", (OP, "="), " ", (ST, "`Part_"), (PS, "{"), (VA, "i"), (PS, "}"),
-           (ST, "`")),
-        _l("    ", ("function.builtin", "print"), (BR, "("), ("variable.special", "math"), (DL, "."),
-           ("function.builtin", "floor"), (BR, "("), (VA, "hp"), " ", (OP, "/"), " ", (NU, "2"), (BR, ")"), (DL, ","), " ",
-           ("constant.builtin", "nil"), (BR, ")")),
-        _l("  ", (KW, "end")),
-        _l("  ", ("variable.special", "self"), (DL, "."), (PR, "count"), " ", (OP, "+="), " ", (NU, "1")),
-        _l("  ", (KW, "return"), " ", ("boolean", "true"), " ", ("comment", "-- the Luau grammar tags every keyword as plain `keyword`")),
-        _l((KW, "end")),
-    ],
-    "Tokens": [
-        _l(("comment", "-- one line per Gruvbox group, every token kind it covers")),
-        _l(("comment", "red    "), (KW, "keyword"), " ", (KC, "if"), " ", ("keyword.preproc", "#include"), " ",
-           ("function.builtin", "print"), (BR, "()"), " ", ("storageclass", "static"), " ", ("type.qualifier", "volatile")),
-        _l(("comment", "green  "), (FN, "function"), (BR, "()"), " ", ("function.method", "method"), (BR, "()"), " ",
-           (ST, '"string"'), " ", ("title.markup", "# Title"), " ", ("markup.heading", "## heading")),
-        _l(("comment", "yellow "), (TY, "Type"), " ", (TB, "int"), " ", ("constant", "CONSTANT"), " ",
-           ("constant.builtin", "nullptr"), " ", ("selector.class", ".selector"), " ", ("concept", "Concept")),
-        _l(("comment", "blue   "), ("attribute", "@attribute"), " ", ("constructor", "Constructor"), " ",
-           ("namespace", "namespace"), " ", ("module", "module"), " ", ("label", "label:"), " ", ("variant", "Variant"),
-           " ", ("variable.special", "this"), " ", ("lifetime", "'a"), " ", ("text.literal.markup", "`code`"), " ",
-           ("emphasis.strong.markup", "**strong**")),
-        _l(("comment", "purple "), (NU, "42"), " ", ("boolean", "true"), " ", ("link_uri.markup", "https://zed.dev"), " ",
-           ("string.special", "special"), " ", ("string.special.path", "./path")),
-        _l(("comment", "aqua   "), (OP, "="), " ", (OP, "&&"), " ", (OP, "->"), " ", ("tag", "<div>"), " ",
-           ("embedded", "embedded"), " ", ("link_text.markup", "link text"), " ", ("string.special.symbol", ":symbol")),
-        _l(("comment", "orange "), ("enum", "Enum"), " ", ("string.regex", "/re(g)ex+/")),
-        _l(("comment", "text   "), (VA, "variable"), " ", (VP, "parameter"), " ", (PR, "property"), " ",
-           ("punctuation.list_marker.markup", "-"), " list"),
-        _l(("comment", "punct  "), ("punctuation", "punctuation"), " ", (BR, "( ) [ ] { }"), " ", (DL, ", ; ::"), " ",
-           (PS, "${ }")),
-        _l(("comment", "muted  "), ("comment", "// comment"), " ", ("comment.doc", "/// doc comment"), " ",
-           ("string.escape", "\\n \\t"), " ", ("hint", "hint"), " ", ("predictive", "predictive")),
-        _l(("comment", "diff   "), ("diff.plus", "+ added"), " ", ("diff.minus", "- removed")),
-    ],
-}
+def tint(bg, col, t, fg, floor):
+    """bg tinted toward col by up to t, backing off until fg keeps `floor` contrast on it."""
+    while t > 0 and contrast(fg, mix(bg, col, t)) < floor:
+        t -= 0.01
+    return mix(bg, col, max(t, 0))
 
 
+def claude_code_theme(v):
+    c, dark, r = v["colors"], is_dark(v), v["_rules"]
+    bg, tx, cm, acc = c["bg"], c["tx"], c["cm"], c["accent"]
+    floor, faint = r["ansi"], r["ansi_dim"]
+    shimmer = lambda col: mix(col, tx, 0.35)
+    pink = mix(c["purple"], c["red"], 0.4)
+    indigo = mix(c["blue"], c["purple"], 0.5)
+    o = {
+        # text and accents
+        "claude": acc, "claudeShimmer": shimmer(acc), "text": tx, "inverseText": bg,
+        "inactive": readable(cm, bg, faint, dark), "inactiveShimmer": shimmer(cm),
+        "subtle": soft(tx, bg, 0.55, faint), "suggestion": c["blue"],
+        "permission": c["blue"], "permissionShimmer": shimmer(c["blue"]), "remember": c["purple"],
+        # status
+        "success": c["green"], "error": c["red"], "warning": c["yellow"], "warningShimmer": shimmer(c["yellow"]),
+        "merged": c["purple"],
+        # input box and modes
+        "promptBorder": mix(bg, tx, 0.35), "promptBorderShimmer": mix(bg, tx, 0.6),
+        "planMode": c["aqua"], "autoAccept": c["purple"], "bashBorder": c["orange"], "ide": c["blue"],
+        "fastMode": c["orange"], "fastModeShimmer": shimmer(c["orange"]), "effortUltra": c["purple"],
+        # diffs: tinted backgrounds, text stays readable on them (checked)
+        "diffAdded": tint(bg, c["green"], 0.2, tx, floor), "diffRemoved": tint(bg, c["red"], 0.2, tx, floor),
+        "diffAddedDimmed": tint(bg, c["green"], 0.09, tx, floor), "diffRemovedDimmed": tint(bg, c["red"], 0.09, tx, floor),
+        "diffAddedWord": tint(bg, c["green"], 0.36, tx, floor), "diffRemovedWord": tint(bg, c["red"], 0.36, tx, floor),
+        # transcript backgrounds
+        "userMessageBackground": mix(bg, tx, 0.07), "userMessageBackgroundHover": mix(bg, tx, 0.12),
+        "bashMessageBackgroundColor": tint(bg, c["orange"], 0.1, tx, floor),
+        "memoryBackgroundColor": tint(bg, c["purple"], 0.1, tx, floor),
+        "selectionBg": c["sel"],
+        # usage meter and labels
+        "rate_limit_fill": acc, "rate_limit_empty": mix(bg, tx, 0.2),
+        "briefLabelYou": c["blue"], "briefLabelClaude": acc,
+    }
+    for name, col in [("red", c["red"]), ("blue", c["blue"]), ("green", c["green"]), ("yellow", c["yellow"]),
+                      ("purple", c["purple"]), ("orange", c["orange"]), ("pink", pink), ("cyan", c["aqua"])]:
+        o[f"{name}_FOR_SUBAGENTS_ONLY"] = readable(col, bg, floor, dark)
+    for name, col in [("red", c["red"]), ("orange", c["orange"]), ("yellow", c["yellow"]), ("green", c["green"]),
+                      ("blue", c["blue"]), ("indigo", indigo), ("violet", c["purple"])]:
+        o[f"rainbow_{name}"] = readable(col, bg, floor, dark)
+        o[f"rainbow_{name}_shimmer"] = shimmer(col)
+    return {"name": v["name"], "base": "dark" if dark else "light", "overrides": o}
+
+
+# Tokens drawn as text on the terminal background, and the background tokens text sits on.
+CC_TEXT = ["claude", "text", "suggestion", "permission", "remember", "success", "error", "warning", "merged",
+           "planMode", "autoAccept", "ide", "fastMode", "effortUltra", "briefLabelYou", "briefLabelClaude"]
+CC_FAINT = ["inactive", "subtle"]
+CC_TEXT_BG = ["diffAdded", "diffRemoved", "diffAddedDimmed", "diffRemovedDimmed", "diffAddedWord",
+              "diffRemovedWord", "userMessageBackground", "userMessageBackgroundHover",
+              "bashMessageBackgroundColor", "memoryBackgroundColor", "selectionBg"]
+
+
+# ---------------------------------------------------------------- opencode
+# Theme files for ~/.config/opencode/themes/<slug>.json. opencode paints its own background.
+def opencode_theme(v):
+    c, dark, r = v["colors"], is_dark(v), v["_rules"]
+    bg, panel, tx, cm, acc = c["bg"], c["panel"], c["tx"], c["cm"], c["accent"]
+    floor, faint = r["ansi"], r["ansi_dim"]
+    on_acc = bg if contrast(bg, acc) >= contrast(tx, acc) else tx
+
+    def ink(col, minimum=floor):  # readable on both the editor background and the side panel
+        return readable(readable(col, bg, minimum, dark), panel, minimum, dark)
+    added, removed = tint(bg, c["green"], 0.14, tx, floor), tint(bg, c["red"], 0.14, tx, floor)
+    added_ln, removed_ln = tint(bg, c["green"], 0.22, tx, floor), tint(bg, c["red"], 0.22, tx, floor)
+    line_num = readable(readable(cm, added_ln, faint, dark), removed_ln, faint, dark)
+    t = {
+        "primary": ink(acc), "secondary": ink(c["blue"]), "accent": ink(c["purple"]),
+        "error": ink(c["red"]), "warning": ink(c["yellow"]), "success": ink(c["green"]), "info": ink(c["aqua"]),
+        "text": tx, "textMuted": ink(cm, faint), "selectedListItemText": on_acc,
+        "background": bg, "backgroundPanel": panel, "backgroundElement": mix(bg, tx, 0.06),
+        "backgroundMenu": panel,
+        "border": mix(panel, tx, 0.14), "borderActive": acc, "borderSubtle": mix(panel, tx, 0.08),
+        "diffAdded": c["green"], "diffRemoved": c["red"], "diffContext": cm, "diffHunkHeader": c["blue"],
+        "diffHighlightAdded": c["green"], "diffHighlightRemoved": c["red"],
+        "diffAddedBg": added, "diffRemovedBg": removed, "diffContextBg": panel, "diffLineNumber": line_num,
+        "diffAddedLineNumberBg": added_ln, "diffRemovedLineNumberBg": removed_ln,
+        # markdown follows the Gruvbox syntax groups used in Zed (title green, links purple/aqua,
+        # literal code and emphasis blue, list markers plain text)
+        "markdownText": tx, "markdownHeading": c["green"], "markdownLink": c["purple"],
+        "markdownLinkText": c["aqua"], "markdownCode": c["blue"], "markdownBlockQuote": cm,
+        "markdownEmph": c["blue"], "markdownStrong": c["blue"], "markdownHorizontalRule": cm,
+        "markdownListItem": tx, "markdownListEnumeration": tx, "markdownImage": c["purple"],
+        "markdownImageText": c["aqua"], "markdownCodeBlock": tx,
+        "syntaxComment": cm, "syntaxKeyword": c["red"], "syntaxFunction": c["green"], "syntaxVariable": tx,
+        "syntaxString": c["green"], "syntaxNumber": c["purple"], "syntaxType": c["yellow"],
+        "syntaxOperator": c["aqua"], "syntaxPunctuation": soft(tx, bg, 0.16, r["syntax"]),
+    }
+    return {"$schema": "https://opencode.ai/theme.json", "theme": t}
+
+
+OC_TEXT_BG = ["background", "backgroundPanel", "backgroundElement", "backgroundMenu", "diffAddedBg",
+              "diffRemovedBg", "diffContextBg", "diffAddedLineNumberBg", "diffRemovedLineNumberBg"]
+
+
+def port_check(v):
+    """Readability of the Claude Code and opencode ports (same floors as the terminal)."""
+    c, r, name = v["colors"], v["_rules"], v["name"]
+    probs = []
+
+    def need(fg, bgc, floor, what):
+        got = contrast(fg, bgc)
+        if got + 1e-9 < floor:
+            probs.append(f"{name}: {what} is {got:.2f}:1, needs {floor}")
+    cc = claude_code_theme(v)["overrides"]
+    for k in CC_TEXT + [k for k in cc if k.endswith("_FOR_SUBAGENTS_ONLY")]:
+        need(cc[k], c["bg"], r["ansi"], f"claude-code {k} on the terminal background")
+    for k in CC_FAINT:
+        need(cc[k], c["bg"], r["ansi_dim"], f"claude-code {k} on the terminal background")
+    for k in CC_TEXT_BG:
+        need(c["tx"], cc[k], r["ansi"], f"claude-code text on {k}")
+    for k in ("claude", "success", "error", "warning", "permission"):
+        need(cc["inverseText"], cc[k], r["ansi"], f"claude-code inverseText on {k}")
+    oc = opencode_theme(v)["theme"]
+    for k in OC_TEXT_BG:
+        need(oc["text"], oc[k], r["ansi"], f"opencode text on {k}")
+    for k in ("background", "backgroundPanel", "backgroundElement", "backgroundMenu"):
+        need(oc["textMuted"], oc[k], r["ansi_dim"], f"opencode textMuted on {k}")
+    for k in ("diffAddedLineNumberBg", "diffRemovedLineNumberBg"):
+        need(oc["diffLineNumber"], oc[k], r["ansi_dim"], f"opencode diffLineNumber on {k}")
+    need(oc["selectedListItemText"], oc["primary"], r["ansi"], "opencode selectedListItemText on primary")
+    for k in ("primary", "secondary", "accent", "error", "warning", "success", "info"):
+        for b in ("background", "backgroundPanel"):
+            need(oc[k], oc[b], r["ansi"], f"opencode {k} on {b}")
+    return probs
+
+
+# ---------------------------------------------------------------- validation
 def resolve_key(syntax, cap):
     parts = cap.split(".")
     for i in range(len(parts), 0, -1):
@@ -626,100 +623,6 @@ def resolve_key(syntax, cap):
     return None
 
 
-def render_sample(syntax, tx, lines):
-    out = []
-    for line in lines:
-        row = []
-        for cap, text in line:
-            text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            if not cap:
-                row.append(text)
-                continue
-            k = resolve_key(syntax, cap)
-            style = syntax[k] if k else {"color": tx}
-            css = f"color:{style['color'][:7]}"
-            if style.get("font_style") == "italic":
-                css += ";font-style:italic"
-            if style.get("font_weight"):
-                css += f";font-weight:{style['font_weight']}"
-            row.append(f'<span style="{css}" title="@{cap} -> {k or "plain"}">{text}</span>')
-        out.append("".join(row))
-    return "\n".join(out)
-
-
-def gruvbox_cards(gruv):
-    """Zed's Gruvbox Dark and Light as preview cards, colors read from reference/gruvbox.json."""
-    out = []
-    for t in gruv["themes"]:
-        if t["name"] not in ("Gruvbox Dark", "Gruvbox Light"):
-            continue
-        st = t["style"]
-        syn = {k: {kk: vv for kk, vv in v.items() if vv is not None} for k, v in st["syntax"].items()}
-        c = {"bg": st["editor.background"][:7], "tx": st["editor.foreground"][:7], "panel": st["panel.background"][:7],
-             "cm": syn["comment"]["color"][:7]}
-        for hue, key in [("red", "keyword"), ("orange", "enum"), ("yellow", "type"), ("green", "string"),
-                         ("aqua", "operator"), ("blue", "attribute"), ("purple", "number")]:
-            c[hue] = syn[key]["color"][:7]
-        out.append({"name": t["name"] + " (Zed, reference)", "appearance": t["appearance"], "colors": c,
-                    "syntax": syn, "ref": True})
-    return out
-
-
-def preview_html(pkg, data, gruv):
-    cards = gruvbox_cards(gruv)
-    for _, v in variants(data):
-        cards.append({"name": v["name"], "appearance": v["appearance"], "colors": v["colors"],
-                      "syntax": zed_syntax(v["colors"], v["_rules"]), "pending": v.get("pending", False)})
-    html = []
-    for group, title in [("dark", "Dark"), ("light", "Light and mid-tone")]:
-        html.append(f"<h2 class=grp>{title}</h2><div class=grid>")
-        for card in cards:
-            if card["appearance"] != group:
-                continue
-            c, sh = card["colors"], sharpness(card["colors"])
-            sw = "".join(f'<i style="background:{c[k]}" title="{k} {c[k]}"></i>' for k in HUES)
-            if "accent" in c:
-                sw += f'<b style="background:{c["accent"]}" title="accent {c["accent"]}"></b>'
-            stats = (f'avg C {sh["chroma"]:.0f} &middot; L* {sh["lmin"]:.0f}-{sh["lmax"]:.0f} '
-                     f'(spread {sh["spread"]:.0f}) &middot; closest dE {sh["closest"][0]:.1f} '
-                     f'{sh["closest"][1]}/{sh["closest"][2]}')
-            tag = " <em>reference</em>" if card.get("ref") else (" <em>old colors, pending</em>" if card.get("pending") else "")
-            pres = "".join(
-                f'<pre class="lang" data-lang="{lang}">{render_sample(card["syntax"], c["tx"], lines)}</pre>'
-                for lang, lines in SAMPLES.items())
-            cls = "card ref" if card.get("ref") else ("card pending" if card.get("pending") else "card")
-            html.append(
-                f'<section class="{cls}"><h3>{card["name"]}{tag}<span class="sw">{sw}</span></h3>'
-                f'<div class="ed" style="background:{c["bg"]};color:{c["tx"]};border-color:{c["panel"]}">'
-                f'<div class="bar" style="background:{c["panel"]};color:{c["cm"]}">{stats}</div>{pres}</div></section>')
-        html.append("</div>")
-    langs = "".join(f"<button data-l=\"{l}\" onclick=\"show('{l}')\">{l}</button>" for l in SAMPLES)
-    first = next(iter(SAMPLES))
-    return ("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-            "<title>" + pkg["name"] + " preview</title>"
-            "<style>body{font-family:system-ui,sans-serif;background:#7a7a7a;margin:20px;color:#111}"
-            "h1{font-size:18px;margin:0 0 6px}p.note{margin:4px 0 10px;font-size:13px}"
-            "h2.grp{font-size:15px;margin:22px 0 6px}.grid{display:grid;gap:14px;"
-            "grid-template-columns:repeat(auto-fill,minmax(min(100%,640px),1fr))}"
-            "h3{font-size:13px;margin:0 0 5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}"
-            "h3 em{font-weight:400;font-style:normal;background:#0002;padding:0 6px;border-radius:4px}"
-            ".card.pending{opacity:.55}.card.ref h3{color:#2a1a00}"
-            ".sw{display:flex;gap:2px}.sw i,.sw b{width:14px;height:14px;border-radius:3px}"
-            ".sw b{border-radius:50%;margin-left:4px}"
-            ".ed{border-radius:8px;overflow:hidden;border:1px solid}.bar{padding:5px 12px;font-size:12px}"
-            "pre{margin:0;padding:10px 14px;font:13px/1.65 ui-monospace,'Cascadia Code',Consolas,monospace;"
-            "display:none;overflow-x:auto}"
-            "button{font:13px system-ui;margin-right:6px;padding:4px 12px}button.on{font-weight:700}</style>"
-            "<h1>" + pkg["name"] + "</h1><p class=note>Zed's Gruvbox is shown first in each group as the target "
-            "for separation. Hover a token to see its capture and the theme key it resolves to. Swatches: "
-            "red, orange, yellow, green, aqua, blue, purple, then the accent (circle).</p><p>" + langs + "</p>"
-            + "".join(html) +
-            "<script>function show(l){document.querySelectorAll('pre.lang').forEach(p=>p.style.display="
-            "p.dataset.lang===l?'block':'none');document.querySelectorAll('button').forEach(b=>"
-            "b.classList.toggle('on',b.dataset.l===l))}show('" + first + "')</script>")
-
-
-# ---------------------------------------------------------------- validation
 def group_of_keys():
     out = {}
     for group, keys in list(GROUPS.items()) + list(EXTRA.items()):
@@ -798,6 +701,7 @@ def validate(data, ref, gruv, themes, rows=None):
     for (_, v), t in zip(variants(data), themes):
         probs, row = terminal_check(v, t["style"])
         errors.extend(probs)
+        errors.extend(port_check(v))
         if rows is not None:
             rows.append(row)
     want = set(ref["color_keys"]) | set(ref["status_keys"])
@@ -961,13 +865,17 @@ def main():
             (ob_dir / f"{pkg['id']}-{name}.css").write_text(obsidian_css(pkg, title, vs) + "\n", encoding="utf-8")
             snippets += 1
 
-    pv = ROOT / "preview"
-    pv.mkdir(exist_ok=True)
-    (pv / "index.html").write_text(preview_html(pkg, data, gruv), encoding="utf-8")
+    for port, gen in (("claude-code", claude_code_theme), ("opencode", opencode_theme)):
+        d = ROOT / "ports" / port
+        d.mkdir(parents=True, exist_ok=True)
+        for old in d.glob("*.json"):
+            old.unlink()
+        for _, v in variants(data):
+            (d / f"{slug(v['name'])}.json").write_text(json.dumps(gen(v), indent=2) + "\n", encoding="utf-8")
 
     n = len(all_themes)
     print(f"built {n} themes: Zed ({len(data['families'])} files), Windows Terminal ({n} schemes), "
-          f"Obsidian ({snippets} snippets), preview")
+          f"Obsidian ({snippets} snippets), Claude Code ({n}), opencode ({n})")
 
 
 if __name__ == "__main__":
