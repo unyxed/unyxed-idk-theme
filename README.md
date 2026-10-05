@@ -2,7 +2,8 @@
 
 A growing grab bag of rich, low-glare themes: Aubergine, Lagoon, Forest, Indigo Dusk, and the Clay, Mauve and Stone mid-tones.
 
-Every theme ships for **Zed**, **Windows Terminal** and **Obsidian** (via the AnuPpuccin theme),
+Every theme ships for **Zed**, **Windows Terminal**, **Claude Code**, **opencode** and **Obsidian**
+(via the AnuPpuccin theme), and works in **Antigravity CLI** through the terminal scheme,
 all generated from one file: `palettes.json`.
 
 | Family | Themes |
@@ -13,15 +14,20 @@ all generated from one file: `palettes.json`.
 | Indigo Dusk | Indigo Dusk Dark, Indigo Dusk Light |
 | Mid Tones | Clay, Mauve, Stone |
 
-`preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples.
+`preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples, next to Zed's Gruvbox for comparison.
 
 ## Syntax colors
 
-Nine syntax hues, spread around the color wheel with matched lightness so tokens are easy to tell apart
-but the theme stays calm: declaration keywords, control flow, imports and preprocessor, strings, functions,
-numbers, types, properties and operators each get their own color. The build enforces a minimum CIELAB
-difference (delta E 25) between them. It works in any language: grammars that emit only plain `keyword`
-(for example Luau) simply show one keyword color.
+Syntax highlighting follows the structure of Zed's built-in Gruvbox theme: seven hues (red, orange,
+yellow, green, aqua, blue, purple) color the same kinds of tokens Gruvbox colors with them, so code
+reads the way a mainstream theme reads. Keywords are red, functions and strings green, types and
+constants yellow, numbers purple, operators aqua, attributes and namespaces blue; variables and
+properties stay in the plain text color. The hues themselves are each theme's own calm colors,
+and the build enforces a minimum CIELAB difference (delta E 25) between them and the text color.
+It works in any language, including third-party grammars, because it only uses Zed's common
+capture names.
+
+A theme still being moved to this structure is marked "pending" in the preview.
 
 ## Install
 
@@ -32,13 +38,18 @@ Pick a theme with Ctrl+K, Ctrl+T. To follow the system light/dark mode:
 "theme": { "mode": "system", "light": "<Light theme name>", "dark": "<Dark theme name>" }
 ```
 
-**Windows Terminal and Obsidian** (PowerShell, from this folder):
+**Windows Terminal, Claude Code, opencode and Obsidian** (PowerShell, from this folder):
 
 ```powershell
 .\install.ps1 -Vault "D:\path\to\Vault"
 ```
 
 - Windows Terminal: restart it, then Settings > Profiles > Defaults (or a profile) > Appearance > Color scheme.
+- Claude Code: themes go to `~/.claude/themes/`; pick one with `/theme`. Use it together with the same
+  scheme in Windows Terminal: Claude Code draws on the terminal's background.
+- opencode: themes go to `~/.config/opencode/themes/`; pick one with `/theme`.
+- Antigravity CLI: nothing to install. Keep `colorScheme` on `"terminal"` (the default, or `/config`)
+  and it uses the Windows Terminal scheme.
 - Obsidian: install the AnuPpuccin theme, then Settings > Appearance > CSS snippets, and enable **one**
   `unyxed-idk-theme-*.css` snippet. Leave AnuPpuccin's custom color fields in Style Settings empty, or they override the snippet.
   Any AnuPpuccin flavor works as the base; Mocha (dark) and Latte (light) are good defaults.

@@ -11,6 +11,8 @@ Outputs (all generated, never edit by hand):
     themes/<family>.json                      Zed theme families
     ports/windows-terminal/<package-id>.json  Windows Terminal fragment with every scheme
     ports/obsidian/<package-id>-<family>.css  AnuPpuccin snippets, one per family
+    ports/claude-code/<theme>.json            Claude Code custom themes (~/.claude/themes)
+    ports/opencode/<theme>.json               opencode themes (~/.config/opencode/themes)
     preview/index.html                        Static preview of every variant, next to Zed's Gruvbox
 
 Requires Python 3.9+, no third-party packages.
@@ -617,6 +619,148 @@ SAMPLES = {
 }
 
 
+# ---------------------------------------------------------------- claude code
+# Custom theme files for ~/.claude/themes/<slug>.json. Claude Code draws on the terminal's own
+# background, so these assume the matching Windows Terminal scheme (terminal bg = `bg`).
+def readable(col, bg, floor, dark):
+    """col, nudged away from bg (same hue) until it reaches `floor` contrast."""
+    return toward_contrast(col, bg, floor, "#FFFFFF" if dark else "#000000")
+
+
+def tint(bg, col, t, fg, floor):
+    """bg tinted toward col by up to t, backing off until fg keeps `floor` contrast on it."""
+    while t > 0 and contrast(fg, mix(bg, col, t)) < floor:
+        t -= 0.01
+    return mix(bg, col, max(t, 0))
+
+
+def claude_code_theme(v):
+    c, dark, r = v["colors"], is_dark(v), v["_rules"]
+    bg, tx, cm, acc = c["bg"], c["tx"], c["cm"], c["accent"]
+    floor, faint = r["ansi"], r["ansi_dim"]
+    shimmer = lambda col: mix(col, tx, 0.35)
+    pink = mix(c["purple"], c["red"], 0.4)
+    indigo = mix(c["blue"], c["purple"], 0.5)
+    o = {
+        # text and accents
+        "claude": acc, "claudeShimmer": shimmer(acc), "text": tx, "inverseText": bg,
+        "inactive": readable(cm, bg, faint, dark), "inactiveShimmer": shimmer(cm),
+        "subtle": soft(tx, bg, 0.55, faint), "suggestion": c["blue"],
+        "permission": c["blue"], "permissionShimmer": shimmer(c["blue"]), "remember": c["purple"],
+        # status
+        "success": c["green"], "error": c["red"], "warning": c["yellow"], "warningShimmer": shimmer(c["yellow"]),
+        "merged": c["purple"],
+        # input box and modes
+        "promptBorder": mix(bg, tx, 0.35), "promptBorderShimmer": mix(bg, tx, 0.6),
+        "planMode": c["aqua"], "autoAccept": c["purple"], "bashBorder": c["orange"], "ide": c["blue"],
+        "fastMode": c["orange"], "fastModeShimmer": shimmer(c["orange"]), "effortUltra": c["purple"],
+        # diffs: tinted backgrounds, text stays readable on them (checked)
+        "diffAdded": tint(bg, c["green"], 0.2, tx, floor), "diffRemoved": tint(bg, c["red"], 0.2, tx, floor),
+        "diffAddedDimmed": tint(bg, c["green"], 0.09, tx, floor), "diffRemovedDimmed": tint(bg, c["red"], 0.09, tx, floor),
+        "diffAddedWord": tint(bg, c["green"], 0.36, tx, floor), "diffRemovedWord": tint(bg, c["red"], 0.36, tx, floor),
+        # transcript backgrounds
+        "userMessageBackground": mix(bg, tx, 0.07), "userMessageBackgroundHover": mix(bg, tx, 0.12),
+        "bashMessageBackgroundColor": tint(bg, c["orange"], 0.1, tx, floor),
+        "memoryBackgroundColor": tint(bg, c["purple"], 0.1, tx, floor),
+        "selectionBg": c["sel"],
+        # usage meter and labels
+        "rate_limit_fill": acc, "rate_limit_empty": mix(bg, tx, 0.2),
+        "briefLabelYou": c["blue"], "briefLabelClaude": acc,
+    }
+    for name, col in [("red", c["red"]), ("blue", c["blue"]), ("green", c["green"]), ("yellow", c["yellow"]),
+                      ("purple", c["purple"]), ("orange", c["orange"]), ("pink", pink), ("cyan", c["aqua"])]:
+        o[f"{name}_FOR_SUBAGENTS_ONLY"] = readable(col, bg, floor, dark)
+    for name, col in [("red", c["red"]), ("orange", c["orange"]), ("yellow", c["yellow"]), ("green", c["green"]),
+                      ("blue", c["blue"]), ("indigo", indigo), ("violet", c["purple"])]:
+        o[f"rainbow_{name}"] = readable(col, bg, floor, dark)
+        o[f"rainbow_{name}_shimmer"] = shimmer(col)
+    return {"name": v["name"], "base": "dark" if dark else "light", "overrides": o}
+
+
+# Tokens drawn as text on the terminal background, and the background tokens text sits on.
+CC_TEXT = ["claude", "text", "suggestion", "permission", "remember", "success", "error", "warning", "merged",
+           "planMode", "autoAccept", "ide", "fastMode", "effortUltra", "briefLabelYou", "briefLabelClaude"]
+CC_FAINT = ["inactive", "subtle"]
+CC_TEXT_BG = ["diffAdded", "diffRemoved", "diffAddedDimmed", "diffRemovedDimmed", "diffAddedWord",
+              "diffRemovedWord", "userMessageBackground", "userMessageBackgroundHover",
+              "bashMessageBackgroundColor", "memoryBackgroundColor", "selectionBg"]
+
+
+# ---------------------------------------------------------------- opencode
+# Theme files for ~/.config/opencode/themes/<slug>.json. opencode paints its own background.
+def opencode_theme(v):
+    c, dark, r = v["colors"], is_dark(v), v["_rules"]
+    bg, panel, tx, cm, acc = c["bg"], c["panel"], c["tx"], c["cm"], c["accent"]
+    floor, faint = r["ansi"], r["ansi_dim"]
+    on_acc = bg if contrast(bg, acc) >= contrast(tx, acc) else tx
+
+    def ink(col, minimum=floor):  # readable on both the editor background and the side panel
+        return readable(readable(col, bg, minimum, dark), panel, minimum, dark)
+    added, removed = tint(bg, c["green"], 0.14, tx, floor), tint(bg, c["red"], 0.14, tx, floor)
+    added_ln, removed_ln = tint(bg, c["green"], 0.22, tx, floor), tint(bg, c["red"], 0.22, tx, floor)
+    line_num = readable(readable(cm, added_ln, faint, dark), removed_ln, faint, dark)
+    t = {
+        "primary": ink(acc), "secondary": ink(c["blue"]), "accent": ink(c["purple"]),
+        "error": ink(c["red"]), "warning": ink(c["yellow"]), "success": ink(c["green"]), "info": ink(c["aqua"]),
+        "text": tx, "textMuted": ink(cm, faint), "selectedListItemText": on_acc,
+        "background": bg, "backgroundPanel": panel, "backgroundElement": mix(bg, tx, 0.06),
+        "backgroundMenu": panel,
+        "border": mix(panel, tx, 0.14), "borderActive": acc, "borderSubtle": mix(panel, tx, 0.08),
+        "diffAdded": c["green"], "diffRemoved": c["red"], "diffContext": cm, "diffHunkHeader": c["blue"],
+        "diffHighlightAdded": c["green"], "diffHighlightRemoved": c["red"],
+        "diffAddedBg": added, "diffRemovedBg": removed, "diffContextBg": panel, "diffLineNumber": line_num,
+        "diffAddedLineNumberBg": added_ln, "diffRemovedLineNumberBg": removed_ln,
+        # markdown follows the Gruvbox syntax groups used in Zed (title green, links purple/aqua,
+        # literal code and emphasis blue, list markers plain text)
+        "markdownText": tx, "markdownHeading": c["green"], "markdownLink": c["purple"],
+        "markdownLinkText": c["aqua"], "markdownCode": c["blue"], "markdownBlockQuote": cm,
+        "markdownEmph": c["blue"], "markdownStrong": c["blue"], "markdownHorizontalRule": cm,
+        "markdownListItem": tx, "markdownListEnumeration": tx, "markdownImage": c["purple"],
+        "markdownImageText": c["aqua"], "markdownCodeBlock": tx,
+        "syntaxComment": cm, "syntaxKeyword": c["red"], "syntaxFunction": c["green"], "syntaxVariable": tx,
+        "syntaxString": c["green"], "syntaxNumber": c["purple"], "syntaxType": c["yellow"],
+        "syntaxOperator": c["aqua"], "syntaxPunctuation": soft(tx, bg, 0.16, r["syntax"]),
+    }
+    return {"$schema": "https://opencode.ai/theme.json", "theme": t}
+
+
+OC_TEXT_BG = ["background", "backgroundPanel", "backgroundElement", "backgroundMenu", "diffAddedBg",
+              "diffRemovedBg", "diffContextBg", "diffAddedLineNumberBg", "diffRemovedLineNumberBg"]
+
+
+def port_check(v):
+    """Readability of the Claude Code and opencode ports (same floors as the terminal)."""
+    c, r, name = v["colors"], v["_rules"], v["name"]
+    probs = []
+
+    def need(fg, bgc, floor, what):
+        got = contrast(fg, bgc)
+        if got + 1e-9 < floor:
+            probs.append(f"{name}: {what} is {got:.2f}:1, needs {floor}")
+    cc = claude_code_theme(v)["overrides"]
+    for k in CC_TEXT + [k for k in cc if k.endswith("_FOR_SUBAGENTS_ONLY")]:
+        need(cc[k], c["bg"], r["ansi"], f"claude-code {k} on the terminal background")
+    for k in CC_FAINT:
+        need(cc[k], c["bg"], r["ansi_dim"], f"claude-code {k} on the terminal background")
+    for k in CC_TEXT_BG:
+        need(c["tx"], cc[k], r["ansi"], f"claude-code text on {k}")
+    for k in ("claude", "success", "error", "warning", "permission"):
+        need(cc["inverseText"], cc[k], r["ansi"], f"claude-code inverseText on {k}")
+    oc = opencode_theme(v)["theme"]
+    for k in OC_TEXT_BG:
+        need(oc["text"], oc[k], r["ansi"], f"opencode text on {k}")
+    for k in ("background", "backgroundPanel", "backgroundElement", "backgroundMenu"):
+        need(oc["textMuted"], oc[k], r["ansi_dim"], f"opencode textMuted on {k}")
+    for k in ("diffAddedLineNumberBg", "diffRemovedLineNumberBg"):
+        need(oc["diffLineNumber"], oc[k], r["ansi_dim"], f"opencode diffLineNumber on {k}")
+    need(oc["selectedListItemText"], oc["primary"], r["ansi"], "opencode selectedListItemText on primary")
+    for k in ("primary", "secondary", "accent", "error", "warning", "success", "info"):
+        for b in ("background", "backgroundPanel"):
+            need(oc[k], oc[b], r["ansi"], f"opencode {k} on {b}")
+    return probs
+
+
+# ---------------------------------------------------------------- validation
 def resolve_key(syntax, cap):
     parts = cap.split(".")
     for i in range(len(parts), 0, -1):
@@ -626,6 +770,7 @@ def resolve_key(syntax, cap):
     return None
 
 
+# ---------------------------------------------------------------- preview rendering
 def render_sample(syntax, tx, lines):
     out = []
     for line in lines:
@@ -798,6 +943,7 @@ def validate(data, ref, gruv, themes, rows=None):
     for (_, v), t in zip(variants(data), themes):
         probs, row = terminal_check(v, t["style"])
         errors.extend(probs)
+        errors.extend(port_check(v))
         if rows is not None:
             rows.append(row)
     want = set(ref["color_keys"]) | set(ref["status_keys"])
@@ -961,13 +1107,21 @@ def main():
             (ob_dir / f"{pkg['id']}-{name}.css").write_text(obsidian_css(pkg, title, vs) + "\n", encoding="utf-8")
             snippets += 1
 
+    for port, gen in (("claude-code", claude_code_theme), ("opencode", opencode_theme)):
+        d = ROOT / "ports" / port
+        d.mkdir(parents=True, exist_ok=True)
+        for old in d.glob("*.json"):
+            old.unlink()
+        for _, v in variants(data):
+            (d / f"{slug(v['name'])}.json").write_text(json.dumps(gen(v), indent=2) + "\n", encoding="utf-8")
+
     pv = ROOT / "preview"
     pv.mkdir(exist_ok=True)
     (pv / "index.html").write_text(preview_html(pkg, data, gruv), encoding="utf-8")
 
     n = len(all_themes)
     print(f"built {n} themes: Zed ({len(data['families'])} files), Windows Terminal ({n} schemes), "
-          f"Obsidian ({snippets} snippets), preview")
+          f"Obsidian ({snippets} snippets), Claude Code ({n}), opencode ({n}), preview")
 
 
 if __name__ == "__main__":
