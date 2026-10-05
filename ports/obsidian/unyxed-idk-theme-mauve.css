@@ -4,20 +4,20 @@
 
 /* Mauve */
 .theme-light {
-  --ctp-custom-rosewater: 86, 66, 50;
+  --ctp-custom-rosewater: 105, 56, 30;
   --ctp-custom-flamingo: 126, 43, 76;
-  --ctp-custom-pink: 105, 50, 99;
-  --ctp-custom-mauve: 91, 54, 132;
-  --ctp-custom-red: 130, 44, 38;
-  --ctp-custom-maroon: 128, 44, 57;
-  --ctp-custom-peach: 103, 76, 37;
-  --ctp-custom-yellow: 115, 79, 24;
-  --ctp-custom-green: 47, 95, 62;
-  --ctp-custom-teal: 35, 87, 83;
-  --ctp-custom-sky: 40, 87, 113;
-  --ctp-custom-sapphire: 42, 87, 125;
-  --ctp-custom-blue: 45, 87, 143;
-  --ctp-custom-lavender: 68, 70, 138;
+  --ctp-custom-pink: 84, 6, 64;
+  --ctp-custom-mauve: 55, 10, 85;
+  --ctp-custom-red: 138, 0, 25;
+  --ctp-custom-maroon: 132, 22, 50;
+  --ctp-custom-peach: 137, 57, 0;
+  --ctp-custom-yellow: 104, 76, 0;
+  --ctp-custom-green: 21, 88, 19;
+  --ctp-custom-teal: 0, 86, 79;
+  --ctp-custom-sky: 0, 72, 98;
+  --ctp-custom-sapphire: 0, 66, 106;
+  --ctp-custom-blue: 0, 57, 118;
+  --ctp-custom-lavender: 28, 34, 102;
   --ctp-custom-text: 65, 54, 66;
   --ctp-custom-subtext1: 87, 76, 87;
   --ctp-custom-subtext0: 107, 95, 106;
