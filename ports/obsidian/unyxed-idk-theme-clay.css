@@ -4,20 +4,20 @@
 
 /* Clay */
 .theme-light {
-  --ctp-custom-rosewater: 85, 48, 35;
+  --ctp-custom-rosewater: 110, 56, 27;
   --ctp-custom-flamingo: 134, 45, 65;
-  --ctp-custom-pink: 110, 54, 95;
-  --ctp-custom-mauve: 96, 58, 126;
-  --ctp-custom-red: 136, 46, 37;
-  --ctp-custom-maroon: 135, 46, 51;
-  --ctp-custom-peach: 98, 39, 15;
-  --ctp-custom-yellow: 120, 82, 25;
-  --ctp-custom-green: 50, 100, 65;
-  --ctp-custom-teal: 37, 91, 85;
-  --ctp-custom-sky: 42, 90, 116;
-  --ctp-custom-sapphire: 44, 90, 129;
-  --ctp-custom-blue: 47, 90, 148;
-  --ctp-custom-lavender: 72, 74, 137;
+  --ctp-custom-pink: 88, 9, 65;
+  --ctp-custom-mauve: 60, 14, 85;
+  --ctp-custom-red: 141, 0, 29;
+  --ctp-custom-maroon: 138, 22, 47;
+  --ctp-custom-peach: 142, 54, 0;
+  --ctp-custom-yellow: 114, 78, 0;
+  --ctp-custom-green: 22, 90, 23;
+  --ctp-custom-teal: 0, 85, 78;
+  --ctp-custom-sky: 0, 72, 97;
+  --ctp-custom-sapphire: 0, 66, 105;
+  --ctp-custom-blue: 0, 58, 116;
+  --ctp-custom-lavender: 30, 36, 100;
   --ctp-custom-text: 70, 59, 60;
   --ctp-custom-subtext1: 93, 81, 81;
   --ctp-custom-subtext0: 112, 100, 99;

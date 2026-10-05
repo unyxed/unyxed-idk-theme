@@ -33,15 +33,14 @@
             "cm": "#A290B0",
             "sel": "#4F3A5E",
             "accent": "#F68AA1",
-            "red": "#FF8E86",
-            "orange": "#FAA683",
-            "yellow": "#E7C48F",
-            "green": "#9CC9A0",
-            "aqua": "#6ECDCE",
-            "blue": "#8FB4E0",
-            "purple": "#A6A3F3"
-          },
-          "pending": true
+            "red": "#F56F6B",
+            "orange": "#FA9259",
+            "yellow": "#FDCC66",
+            "green": "#8AC975",
+            "aqua": "#49D7CE",
+            "blue": "#52A6EE",
+            "purple": "#BC9EF9"
+          }
         },
         {
           "name": "Aubergine Light",
@@ -53,15 +52,14 @@
             "cm": "#7A6A84",
             "sel": "#DDD0E3",
             "accent": "#9F4473",
-            "red": "#BA392C",
-            "orange": "#925823",
-            "yellow": "#90621E",
-            "green": "#3B774D",
-            "aqua": "#145A75",
-            "blue": "#3566A8",
-            "purple": "#5C3A7E"
-          },
-          "pending": true
+            "red": "#96161F",
+            "orange": "#994501",
+            "yellow": "#826003",
+            "green": "#2C6829",
+            "aqua": "#006165",
+            "blue": "#044782",
+            "purple": "#4B2063"
+          }
         }
       ]
     },
@@ -79,15 +77,14 @@
             "cm": "#86A3A1",
             "sel": "#35525A",
             "accent": "#EB8878",
-            "red": "#FF8E80",
-            "orange": "#ECBBA2",
-            "yellow": "#E7C48F",
-            "green": "#9CC9A0",
-            "aqua": "#81D3C8",
-            "blue": "#8FB4E0",
-            "purple": "#B7A6EB"
-          },
-          "pending": true
+            "red": "#FB766D",
+            "orange": "#FA9759",
+            "yellow": "#FFD26B",
+            "green": "#8DC773",
+            "aqua": "#52D4C3",
+            "blue": "#52A7EE",
+            "purple": "#C59CF7"
+          }
         },
         {
           "name": "Lagoon Light",
@@ -99,15 +96,14 @@
             "cm": "#5D7674",
             "sel": "#CBDDD9",
             "accent": "#A3483F",
-            "red": "#BC392D",
-            "orange": "#805014",
-            "yellow": "#91631E",
-            "green": "#3B774D",
-            "aqua": "#137366",
-            "blue": "#3566A8",
-            "purple": "#7B5298"
-          },
-          "pending": true
+            "red": "#93181E",
+            "orange": "#994700",
+            "yellow": "#82620C",
+            "green": "#2E6825",
+            "aqua": "#00685D",
+            "blue": "#084783",
+            "purple": "#4C1F63"
+          }
         }
       ]
     },
@@ -125,15 +121,14 @@
             "cm": "#8CA08C",
             "sel": "#3C5242",
             "accent": "#E58F8F",
-            "red": "#FF8F7F",
-            "orange": "#EBBD8B",
-            "yellow": "#E7C48F",
-            "green": "#9CC9A0",
-            "aqua": "#87D4D0",
-            "blue": "#8FB4E0",
-            "purple": "#BCA3E0"
-          },
-          "pending": true
+            "red": "#FC776B",
+            "orange": "#ED9A4D",
+            "yellow": "#FFD46C",
+            "green": "#8CC775",
+            "aqua": "#4ED5C8",
+            "blue": "#51A6F0",
+            "purple": "#CA9AF3"
+          }
         },
         {
           "name": "Forest Light",
@@ -145,15 +140,14 @@
             "cm": "#647568",
             "sel": "#D2DCC8",
             "accent": "#A8474B",
-            "red": "#BC392D",
-            "orange": "#915223",
-            "yellow": "#91631E",
-            "green": "#3C794E",
-            "aqua": "#0E7178",
-            "blue": "#3566A8",
-            "purple": "#6B549C"
-          },
-          "pending": true
+            "red": "#951920",
+            "orange": "#9A4405",
+            "yellow": "#846007",
+            "green": "#2D6828",
+            "aqua": "#006565",
+            "blue": "#064884",
+            "purple": "#482165"
+          }
         }
       ]
     },
@@ -171,15 +165,14 @@
             "cm": "#9594B8",
             "sel": "#3E3F63",
             "accent": "#FE9D9A",
-            "red": "#FF8F8A",
-            "orange": "#E8B17C",
-            "yellow": "#E7C48F",
-            "green": "#9CC9A0",
-            "aqua": "#6ECBD4",
-            "blue": "#8FB4E0",
-            "purple": "#BF9FED"
-          },
-          "pending": true
+            "red": "#F66E6B",
+            "orange": "#F29851",
+            "yellow": "#FDCD67",
+            "green": "#8CC874",
+            "aqua": "#47D5D0",
+            "blue": "#50A6EE",
+            "purple": "#CC9BF3"
+          }
         },
         {
           "name": "Indigo Dusk Light",
@@ -191,15 +184,14 @@
             "cm": "#6D6C8C",
             "sel": "#D4D2E8",
             "accent": "#A54644",
-            "red": "#BA392C",
-            "orange": "#8F5920",
-            "yellow": "#90621E",
-            "green": "#3B774D",
-            "aqua": "#2B6B90",
-            "blue": "#3566A8",
-            "purple": "#394E95"
-          },
-          "pending": true
+            "red": "#941A1F",
+            "orange": "#9B4602",
+            "yellow": "#826000",
+            "green": "#2C6929",
+            "aqua": "#006266",
+            "blue": "#004F8F",
+            "purple": "#3B256C"
+          }
         }
       ]
     },
@@ -217,15 +209,14 @@
             "cm": "#66585A",
             "sel": "#C6B8B3",
             "accent": "#862D41",
-            "red": "#882E25",
-            "orange": "#62270F",
-            "yellow": "#785219",
-            "green": "#326441",
-            "aqua": "#255B55",
-            "blue": "#2F5A94",
-            "purple": "#603A7E"
-          },
-          "pending": true
+            "red": "#8D001D",
+            "orange": "#8E3600",
+            "yellow": "#724E00",
+            "green": "#165A17",
+            "aqua": "#00554E",
+            "blue": "#003A74",
+            "purple": "#3C0E55"
+          }
         },
         {
           "name": "Mauve",
@@ -237,15 +228,14 @@
             "cm": "#625560",
             "sel": "#C0B2BB",
             "accent": "#7E2B4C",
-            "red": "#822C26",
-            "orange": "#674C25",
-            "yellow": "#734F18",
-            "green": "#2F5F3E",
-            "aqua": "#235753",
-            "blue": "#2D578F",
-            "purple": "#5B3684"
-          },
-          "pending": true
+            "red": "#8A0019",
+            "orange": "#893900",
+            "yellow": "#684C00",
+            "green": "#155813",
+            "aqua": "#00564F",
+            "blue": "#003976",
+            "purple": "#370A55"
+          }
         },
         {
           "name": "Stone",
