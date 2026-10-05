@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Lagoon Light",
+  "version": "0.5.0",
+  "description": "Lagoon Light, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        220,
+        231,
+        228
+      ],
+      "frame_inactive": [
+        220,
+        231,
+        228
+      ],
+      "frame_incognito": [
+        203,
+        207,
+        213
+      ],
+      "frame_incognito_inactive": [
+        203,
+        207,
+        213
+      ],
+      "background_tab": [
+        220,
+        231,
+        228
+      ],
+      "background_tab_inactive": [
+        220,
+        231,
+        228
+      ],
+      "background_tab_incognito": [
+        220,
+        231,
+        228
+      ],
+      "toolbar": [
+        232,
+        240,
+        238
+      ],
+      "tab_text": [
+        31,
+        58,
+        63
+      ],
+      "tab_background_text": [
+        87,
+        105,
+        107
+      ],
+      "tab_background_text_inactive": [
+        93,
+        118,
+        116
+      ],
+      "bookmark_text": [
+        31,
+        58,
+        63
+      ],
+      "toolbar_text": [
+        31,
+        58,
+        63
+      ],
+      "toolbar_button_icon": [
+        71,
+        94,
+        98
+      ],
+      "omnibox_background": [
+        220,
+        229,
+        228
+      ],
+      "omnibox_text": [
+        31,
+        58,
+        63
+      ],
+      "ntp_background": [
+        232,
+        240,
+        238
+      ],
+      "ntp_text": [
+        31,
+        58,
+        63
+      ],
+      "ntp_link": [
+        8,
+        71,
+        131
+      ],
+      "ntp_header": [
+        220,
+        231,
+        228
+      ],
+      "button_background": [
+        220,
+        229,
+        228
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

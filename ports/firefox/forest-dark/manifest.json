@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Forest Dark",
+  "version": "0.5.0",
+  "description": "Forest Dark, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "forest-dark@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#1F2C23",
+      "frame_inactive": "#1F2C23",
+      "tab_background_text": "#A4AEA2",
+      "tab_text": "#E6EDE0",
+      "tab_selected": "#2A3A2E",
+      "tab_line": "#E58F8F",
+      "tab_loading": "#E58F8F",
+      "tab_background_separator": "#3B473D",
+      "toolbar": "#2A3A2E",
+      "toolbar_text": "#E6EDE0",
+      "toolbar_field": "#354539",
+      "toolbar_field_text": "#E6EDE0",
+      "toolbar_field_border": "#2F3B32",
+      "toolbar_field_focus": "#354539",
+      "toolbar_field_text_focus": "#E6EDE0",
+      "toolbar_field_border_focus": "#E58F8F",
+      "toolbar_field_highlight": "#725F57",
+      "toolbar_field_highlight_text": "#E6EDE0",
+      "toolbar_top_separator": "#1F2C23",
+      "toolbar_bottom_separator": "#2F3B32",
+      "toolbar_vertical_separator": "#3B473D",
+      "popup": "#334337",
+      "popup_text": "#E6EDE0",
+      "popup_border": "#3B473D",
+      "popup_highlight": "#3C5242",
+      "popup_highlight_text": "#E6EDE0",
+      "sidebar": "#1F2C23",
+      "sidebar_text": "#E6EDE0",
+      "sidebar_border": "#2F3B32",
+      "sidebar_highlight": "#3C5242",
+      "sidebar_highlight_text": "#E6EDE0",
+      "button_background_hover": "#3D4C40",
+      "button_background_active": "#445347",
+      "icons": "#C0C9BC",
+      "icons_attention": "#E58F8F",
+      "ntp_background": "#2A3A2E",
+      "ntp_text": "#E6EDE0",
+      "ntp_card_background": "#334337"
+    },
+    "properties": {
+      "color_scheme": "dark",
+      "content_color_scheme": "dark"
+    }
+  }
+}

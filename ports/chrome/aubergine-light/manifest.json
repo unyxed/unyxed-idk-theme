@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Aubergine Light",
+  "version": "0.5.0",
+  "description": "Aubergine Light, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        231,
+        221,
+        234
+      ],
+      "frame_inactive": [
+        231,
+        221,
+        234
+      ],
+      "frame_incognito": [
+        212,
+        198,
+        218
+      ],
+      "frame_incognito_inactive": [
+        212,
+        198,
+        218
+      ],
+      "background_tab": [
+        231,
+        221,
+        234
+      ],
+      "background_tab_inactive": [
+        231,
+        221,
+        234
+      ],
+      "background_tab_incognito": [
+        231,
+        221,
+        234
+      ],
+      "toolbar": [
+        242,
+        235,
+        244
+      ],
+      "tab_text": [
+        51,
+        36,
+        59
+      ],
+      "tab_background_text": [
+        106,
+        96,
+        112
+      ],
+      "tab_background_text_inactive": [
+        122,
+        106,
+        132
+      ],
+      "bookmark_text": [
+        51,
+        36,
+        59
+      ],
+      "toolbar_text": [
+        51,
+        36,
+        59
+      ],
+      "toolbar_button_icon": [
+        89,
+        76,
+        96
+      ],
+      "omnibox_background": [
+        231,
+        223,
+        233
+      ],
+      "omnibox_text": [
+        51,
+        36,
+        59
+      ],
+      "ntp_background": [
+        242,
+        235,
+        244
+      ],
+      "ntp_text": [
+        51,
+        36,
+        59
+      ],
+      "ntp_link": [
+        4,
+        71,
+        130
+      ],
+      "ntp_header": [
+        231,
+        221,
+        234
+      ],
+      "button_background": [
+        231,
+        223,
+        233
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

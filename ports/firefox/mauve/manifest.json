@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Mauve",
+  "version": "0.5.0",
+  "description": "Mauve, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "mauve@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#C8BAC2",
+      "frame_inactive": "#C8BAC2",
+      "tab_background_text": "#534B53",
+      "tab_text": "#413642",
+      "tab_selected": "#D6C7D0",
+      "tab_line": "#7E2B4C",
+      "tab_loading": "#7E2B4C",
+      "tab_background_separator": "#B5A8B0",
+      "toolbar": "#D6C7D0",
+      "toolbar_text": "#413642",
+      "toolbar_field": "#CDBEC7",
+      "toolbar_field_text": "#413642",
+      "toolbar_field_border": "#BDAFB8",
+      "toolbar_field_focus": "#CDBEC7",
+      "toolbar_field_text_focus": "#413642",
+      "toolbar_field_border_focus": "#7E2B4C",
+      "toolbar_field_highlight": "#BA9BAA",
+      "toolbar_field_highlight_text": "#413642",
+      "toolbar_top_separator": "#C8BAC2",
+      "toolbar_bottom_separator": "#BDAFB8",
+      "toolbar_vertical_separator": "#B5A8B0",
+      "popup": "#E4DBE0",
+      "popup_text": "#413642",
+      "popup_border": "#B5A8B0",
+      "popup_highlight": "#C0B2BB",
+      "popup_highlight_text": "#413642",
+      "sidebar": "#C8BAC2",
+      "sidebar_text": "#413642",
+      "sidebar_border": "#BDAFB8",
+      "sidebar_highlight": "#C0B2BB",
+      "sidebar_highlight_text": "#413642",
+      "button_background_hover": "#C7B8C2",
+      "button_background_active": "#C1B3BC",
+      "icons": "#5F535E",
+      "icons_attention": "#7E2B4C",
+      "ntp_background": "#D6C7D0",
+      "ntp_text": "#413642",
+      "ntp_card_background": "#E4DBE0"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}

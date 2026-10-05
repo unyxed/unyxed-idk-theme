@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Stone",
+  "version": "0.5.0",
+  "description": "Stone, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        203,
+        194,
+        190
+      ],
+      "frame_inactive": [
+        203,
+        194,
+        190
+      ],
+      "frame_incognito": [
+        190,
+        171,
+        176
+      ],
+      "frame_incognito_inactive": [
+        190,
+        171,
+        176
+      ],
+      "background_tab": [
+        203,
+        194,
+        190
+      ],
+      "background_tab_inactive": [
+        203,
+        194,
+        190
+      ],
+      "background_tab_incognito": [
+        203,
+        194,
+        190
+      ],
+      "toolbar": [
+        217,
+        208,
+        203
+      ],
+      "tab_text": [
+        30,
+        22,
+        23
+      ],
+      "tab_background_text": [
+        87,
+        80,
+        79
+      ],
+      "tab_background_text_inactive": [
+        94,
+        80,
+        82
+      ],
+      "bookmark_text": [
+        30,
+        22,
+        23
+      ],
+      "toolbar_text": [
+        30,
+        22,
+        23
+      ],
+      "toolbar_button_icon": [
+        67,
+        59,
+        59
+      ],
+      "omnibox_background": [
+        206,
+        197,
+        192
+      ],
+      "omnibox_text": [
+        30,
+        22,
+        23
+      ],
+      "ntp_background": [
+        217,
+        208,
+        203
+      ],
+      "ntp_text": [
+        30,
+        22,
+        23
+      ],
+      "ntp_link": [
+        0,
+        29,
+        97
+      ],
+      "ntp_header": [
+        203,
+        194,
+        190
+      ],
+      "button_background": [
+        206,
+        197,
+        192
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

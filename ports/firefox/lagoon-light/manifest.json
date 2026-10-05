@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Lagoon Light",
+  "version": "0.5.0",
+  "description": "Lagoon Light, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lagoon-light@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#DCE7E4",
+      "frame_inactive": "#DCE7E4",
+      "tab_background_text": "#57696B",
+      "tab_text": "#1F3A3F",
+      "tab_selected": "#E8F0EE",
+      "tab_line": "#A3483F",
+      "tab_loading": "#A3483F",
+      "tab_background_separator": "#C2CFCD",
+      "toolbar": "#E8F0EE",
+      "toolbar_text": "#1F3A3F",
+      "toolbar_field": "#DCE5E4",
+      "toolbar_field_text": "#1F3A3F",
+      "toolbar_field_border": "#CDD9D7",
+      "toolbar_field_focus": "#DCE5E4",
+      "toolbar_field_text_focus": "#1F3A3F",
+      "toolbar_field_border_focus": "#A3483F",
+      "toolbar_field_highlight": "#C8AEAA",
+      "toolbar_field_highlight_text": "#1F3A3F",
+      "toolbar_top_separator": "#DCE7E4",
+      "toolbar_bottom_separator": "#CDD9D7",
+      "toolbar_vertical_separator": "#C2CFCD",
+      "popup": "#F0F5F4",
+      "popup_text": "#1F3A3F",
+      "popup_border": "#C2CFCD",
+      "popup_highlight": "#CBDDD9",
+      "popup_highlight_text": "#1F3A3F",
+      "sidebar": "#DCE7E4",
+      "sidebar_text": "#1F3A3F",
+      "sidebar_border": "#CDD9D7",
+      "sidebar_highlight": "#CBDDD9",
+      "sidebar_highlight_text": "#1F3A3F",
+      "button_background_hover": "#D4DEDD",
+      "button_background_active": "#CCD7D6",
+      "icons": "#475E62",
+      "icons_attention": "#A3483F",
+      "ntp_background": "#E8F0EE",
+      "ntp_text": "#1F3A3F",
+      "ntp_card_background": "#F0F5F4"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}

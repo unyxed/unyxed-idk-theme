@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Clay",
+  "version": "0.5.0",
+  "description": "Clay, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        207,
+        193,
+        187
+      ],
+      "frame_inactive": [
+        207,
+        193,
+        187
+      ],
+      "frame_incognito": [
+        189,
+        172,
+        175
+      ],
+      "frame_incognito_inactive": [
+        189,
+        172,
+        175
+      ],
+      "background_tab": [
+        207,
+        193,
+        187
+      ],
+      "background_tab_inactive": [
+        207,
+        193,
+        187
+      ],
+      "background_tab_incognito": [
+        207,
+        193,
+        187
+      ],
+      "toolbar": [
+        221,
+        206,
+        200
+      ],
+      "tab_text": [
+        70,
+        59,
+        60
+      ],
+      "tab_background_text": [
+        88,
+        79,
+        78
+      ],
+      "tab_background_text_inactive": [
+        102,
+        88,
+        90
+      ],
+      "bookmark_text": [
+        70,
+        59,
+        60
+      ],
+      "toolbar_text": [
+        70,
+        59,
+        60
+      ],
+      "toolbar_button_icon": [
+        100,
+        88,
+        88
+      ],
+      "omnibox_background": [
+        212,
+        197,
+        192
+      ],
+      "omnibox_text": [
+        70,
+        59,
+        60
+      ],
+      "ntp_background": [
+        221,
+        206,
+        200
+      ],
+      "ntp_text": [
+        70,
+        59,
+        60
+      ],
+      "ntp_link": [
+        0,
+        58,
+        116
+      ],
+      "ntp_header": [
+        207,
+        193,
+        187
+      ],
+      "button_background": [
+        212,
+        197,
+        192
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

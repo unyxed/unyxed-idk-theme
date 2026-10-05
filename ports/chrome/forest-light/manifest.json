@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Forest Light",
+  "version": "0.5.0",
+  "description": "Forest Light, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        223,
+        230,
+        216
+      ],
+      "frame_inactive": [
+        223,
+        230,
+        216
+      ],
+      "frame_incognito": [
+        205,
+        206,
+        202
+      ],
+      "frame_incognito_inactive": [
+        205,
+        206,
+        202
+      ],
+      "background_tab": [
+        223,
+        230,
+        216
+      ],
+      "background_tab_inactive": [
+        223,
+        230,
+        216
+      ],
+      "background_tab_incognito": [
+        223,
+        230,
+        216
+      ],
+      "toolbar": [
+        236,
+        240,
+        230
+      ],
+      "tab_text": [
+        38,
+        54,
+        42
+      ],
+      "tab_background_text": [
+        94,
+        104,
+        94
+      ],
+      "tab_background_text_inactive": [
+        100,
+        117,
+        104
+      ],
+      "bookmark_text": [
+        38,
+        54,
+        42
+      ],
+      "toolbar_text": [
+        38,
+        54,
+        42
+      ],
+      "toolbar_button_icon": [
+        78,
+        91,
+        80
+      ],
+      "omnibox_background": [
+        224,
+        229,
+        219
+      ],
+      "omnibox_text": [
+        38,
+        54,
+        42
+      ],
+      "ntp_background": [
+        236,
+        240,
+        230
+      ],
+      "ntp_text": [
+        38,
+        54,
+        42
+      ],
+      "ntp_link": [
+        6,
+        72,
+        132
+      ],
+      "ntp_header": [
+        223,
+        230,
+        216
+      ],
+      "button_background": [
+        224,
+        229,
+        219
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Forest Light",
+  "version": "0.5.0",
+  "description": "Forest Light, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "forest-light@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#DFE6D8",
+      "frame_inactive": "#DFE6D8",
+      "tab_background_text": "#5E685E",
+      "tab_text": "#26362A",
+      "tab_selected": "#ECF0E6",
+      "tab_line": "#A8474B",
+      "tab_loading": "#A8474B",
+      "tab_background_separator": "#C5CDC0",
+      "toolbar": "#ECF0E6",
+      "toolbar_text": "#26362A",
+      "toolbar_field": "#E0E5DB",
+      "toolbar_field_text": "#26362A",
+      "toolbar_field_border": "#D0D8CA",
+      "toolbar_field_focus": "#E0E5DB",
+      "toolbar_field_text_focus": "#26362A",
+      "toolbar_field_border_focus": "#A8474B",
+      "toolbar_field_highlight": "#CCAEA9",
+      "toolbar_field_highlight_text": "#26362A",
+      "toolbar_top_separator": "#DFE6D8",
+      "toolbar_bottom_separator": "#D0D8CA",
+      "toolbar_vertical_separator": "#C5CDC0",
+      "popup": "#F3F5EF",
+      "popup_text": "#26362A",
+      "popup_border": "#C5CDC0",
+      "popup_highlight": "#D2DCC8",
+      "popup_highlight_text": "#26362A",
+      "sidebar": "#DFE6D8",
+      "sidebar_text": "#26362A",
+      "sidebar_border": "#D0D8CA",
+      "sidebar_highlight": "#D2DCC8",
+      "sidebar_highlight_text": "#26362A",
+      "button_background_hover": "#D8DDD3",
+      "button_background_active": "#D0D6CC",
+      "icons": "#4E5B50",
+      "icons_attention": "#A8474B",
+      "ntp_background": "#ECF0E6",
+      "ntp_text": "#26362A",
+      "ntp_card_background": "#F3F5EF"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}

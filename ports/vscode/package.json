@@ -1,0 +1,73 @@
+{
+  "name": "unyxed-idk-theme",
+  "displayName": "Unyxed IDK Themes",
+  "description": "Unyxed IDK Themes, generated from palettes.json.",
+  "version": "0.5.0",
+  "publisher": "unyxed",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Aubergine Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/aubergine-dark.json"
+      },
+      {
+        "label": "Aubergine Light",
+        "uiTheme": "vs",
+        "path": "./themes/aubergine-light.json"
+      },
+      {
+        "label": "Lagoon Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/lagoon-dark.json"
+      },
+      {
+        "label": "Lagoon Light",
+        "uiTheme": "vs",
+        "path": "./themes/lagoon-light.json"
+      },
+      {
+        "label": "Forest Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/forest-dark.json"
+      },
+      {
+        "label": "Forest Light",
+        "uiTheme": "vs",
+        "path": "./themes/forest-light.json"
+      },
+      {
+        "label": "Indigo Dusk Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/indigo-dusk-dark.json"
+      },
+      {
+        "label": "Indigo Dusk Light",
+        "uiTheme": "vs",
+        "path": "./themes/indigo-dusk-light.json"
+      },
+      {
+        "label": "Clay",
+        "uiTheme": "vs",
+        "path": "./themes/clay.json"
+      },
+      {
+        "label": "Mauve",
+        "uiTheme": "vs",
+        "path": "./themes/mauve.json"
+      },
+      {
+        "label": "Stone",
+        "uiTheme": "vs",
+        "path": "./themes/stone.json"
+      }
+    ]
+  }
+}

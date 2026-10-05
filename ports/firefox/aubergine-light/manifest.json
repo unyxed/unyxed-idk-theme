@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Aubergine Light",
+  "version": "0.5.0",
+  "description": "Aubergine Light, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "aubergine-light@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#E7DDEA",
+      "frame_inactive": "#E7DDEA",
+      "tab_background_text": "#6A6070",
+      "tab_text": "#33243B",
+      "tab_selected": "#F2EBF4",
+      "tab_line": "#9F4473",
+      "tab_loading": "#9F4473",
+      "tab_background_separator": "#CEC3D2",
+      "toolbar": "#F2EBF4",
+      "toolbar_text": "#33243B",
+      "toolbar_field": "#E7DFE9",
+      "toolbar_field_text": "#33243B",
+      "toolbar_field_border": "#D9CEDC",
+      "toolbar_field_focus": "#E7DFE9",
+      "toolbar_field_text_focus": "#33243B",
+      "toolbar_field_border_focus": "#9F4473",
+      "toolbar_field_highlight": "#CEA9C0",
+      "toolbar_field_highlight_text": "#33243B",
+      "toolbar_top_separator": "#E7DDEA",
+      "toolbar_bottom_separator": "#D9CEDC",
+      "toolbar_vertical_separator": "#CEC3D2",
+      "popup": "#F7F2F8",
+      "popup_text": "#33243B",
+      "popup_border": "#CEC3D2",
+      "popup_highlight": "#DDD0E3",
+      "popup_highlight_text": "#33243B",
+      "sidebar": "#E7DDEA",
+      "sidebar_text": "#33243B",
+      "sidebar_border": "#D9CEDC",
+      "sidebar_highlight": "#DDD0E3",
+      "sidebar_highlight_text": "#33243B",
+      "button_background_hover": "#DFD7E2",
+      "button_background_active": "#D7CFDA",
+      "icons": "#594C60",
+      "icons_attention": "#9F4473",
+      "ntp_background": "#F2EBF4",
+      "ntp_text": "#33243B",
+      "ntp_card_background": "#F7F2F8"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}

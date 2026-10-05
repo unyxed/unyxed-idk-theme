@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Indigo Dusk Dark",
+  "version": "0.5.0",
+  "description": "Indigo Dusk Dark, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        33,
+        34,
+        57
+      ],
+      "frame_inactive": [
+        33,
+        34,
+        57
+      ],
+      "frame_incognito": [
+        54,
+        49,
+        79
+      ],
+      "frame_incognito_inactive": [
+        54,
+        49,
+        79
+      ],
+      "background_tab": [
+        33,
+        34,
+        57
+      ],
+      "background_tab_inactive": [
+        33,
+        34,
+        57
+      ],
+      "background_tab_incognito": [
+        33,
+        34,
+        57
+      ],
+      "toolbar": [
+        44,
+        45,
+        74
+      ],
+      "tab_text": [
+        232,
+        230,
+        242
+      ],
+      "tab_background_text": [
+        166,
+        165,
+        183
+      ],
+      "tab_background_text_inactive": [
+        149,
+        148,
+        184
+      ],
+      "bookmark_text": [
+        232,
+        230,
+        242
+      ],
+      "toolbar_text": [
+        232,
+        230,
+        242
+      ],
+      "toolbar_button_icon": [
+        194,
+        193,
+        208
+      ],
+      "omnibox_background": [
+        55,
+        56,
+        84
+      ],
+      "omnibox_text": [
+        232,
+        230,
+        242
+      ],
+      "ntp_background": [
+        44,
+        45,
+        74
+      ],
+      "ntp_text": [
+        232,
+        230,
+        242
+      ],
+      "ntp_link": [
+        80,
+        166,
+        238
+      ],
+      "ntp_header": [
+        33,
+        34,
+        57
+      ],
+      "button_background": [
+        55,
+        56,
+        84
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

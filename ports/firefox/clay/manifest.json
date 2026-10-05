@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Clay",
+  "version": "0.5.0",
+  "description": "Clay, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "clay@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#CFC1BB",
+      "frame_inactive": "#CFC1BB",
+      "tab_background_text": "#584F4E",
+      "tab_text": "#463B3C",
+      "tab_selected": "#DDCEC8",
+      "tab_line": "#862D41",
+      "tab_loading": "#862D41",
+      "tab_background_separator": "#BCAEA9",
+      "toolbar": "#DDCEC8",
+      "toolbar_text": "#463B3C",
+      "toolbar_field": "#D4C5C0",
+      "toolbar_field_text": "#463B3C",
+      "toolbar_field_border": "#C4B6B1",
+      "toolbar_field_focus": "#D4C5C0",
+      "toolbar_field_text_focus": "#463B3C",
+      "toolbar_field_border_focus": "#862D41",
+      "toolbar_field_highlight": "#C1A1A2",
+      "toolbar_field_highlight_text": "#463B3C",
+      "toolbar_top_separator": "#CFC1BB",
+      "toolbar_bottom_separator": "#C4B6B1",
+      "toolbar_vertical_separator": "#BCAEA9",
+      "popup": "#E9DFDB",
+      "popup_text": "#463B3C",
+      "popup_border": "#BCAEA9",
+      "popup_highlight": "#C6B8B3",
+      "popup_highlight_text": "#463B3C",
+      "sidebar": "#CFC1BB",
+      "sidebar_text": "#463B3C",
+      "sidebar_border": "#C4B6B1",
+      "sidebar_highlight": "#C6B8B3",
+      "sidebar_highlight_text": "#463B3C",
+      "button_background_hover": "#CEBFBA",
+      "button_background_active": "#C8B9B4",
+      "icons": "#645858",
+      "icons_attention": "#862D41",
+      "ntp_background": "#DDCEC8",
+      "ntp_text": "#463B3C",
+      "ntp_card_background": "#E9DFDB"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}
