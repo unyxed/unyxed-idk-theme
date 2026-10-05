@@ -35,7 +35,13 @@ ports/obsidian/          GENERATED AnuPpuccin CSS snippets
 ports/claude-code/       GENERATED Claude Code custom themes, one per variant
 ports/opencode/          GENERATED opencode themes, one per variant
 preview/index.html       GENERATED visual preview for the owner (agents: do not read it, see below)
-install.ps1              copies ports into Windows Terminal, Claude Code, opencode and Obsidian vaults
+tools/icons.py           icon theme generator (called by build.py)
+tools/icons/             icon shapes (Catppuccin, MIT), file associations, their LICENSE
+icons/<theme>/*.svg      GENERATED icon SVGs, one set per variant
+icon_themes/             GENERATED Zed icon theme family
+ports/vscode-icons/      GENERATED VS Code icon theme extension (install.ps1 adds icons/)
+preview/icons.html       GENERATED icon preview (agents: do not read it)
+install.ps1              copies ports into Windows Terminal, Claude Code, opencode, VS Code and Obsidian vaults
 extension.toml           Zed extension manifest
 ```
 
@@ -238,6 +244,14 @@ Terminal schemes both come from it. Rules (build **errors**, contrast measured o
   both `background` and `backgroundPanel`. Tinted backgrounds back off (`tint()`) and ink colors are
   nudged (`readable()`, same hue) only as far as these need, so a port can differ by a hair from
   the palette on a light theme whose panel is darker than its background.
+- **File icons** (`tools/icons.py`): one icon theme per variant for Zed (`icon_themes/`, SVGs in
+  `icons/<theme>/`) and VS Code (`ports/vscode-icons/`). Shapes come from `tools/icons/catppuccin.json`
+  (Catppuccin Icons, MIT: keep `tools/icons/LICENSE`); `COLOR_ROLES` maps each Catppuccin color to a
+  palette role, folders are outlined in `accent`, unknown files use `cm`. Which icon a file gets lives
+  in `tools/icons/associations.json` (`file_extensions`, `file_names`, `folder_names`, VS Code
+  `language_ids`); a value `folder+X` is a folder badged with icon X, for folders Catppuccin has no
+  icon for. Add coding file types there, never per theme. The build errors on an unknown icon, a
+  color with no role, or an icon color under 3:1 on `bg` or `panel` (`ICON_FLOOR`).
 - Run `install.ps1` after building to copy ports into place.
 
 ## Before you finish a task

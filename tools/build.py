@@ -14,6 +14,7 @@ Outputs (all generated, never edit by hand):
     ports/claude-code/<theme>.json            Claude Code custom themes (~/.claude/themes)
     ports/opencode/<theme>.json               opencode themes (~/.config/opencode/themes)
     preview/index.html                        Static preview of every variant, next to Zed's Gruvbox
+    icons/, icon_themes/, ports/vscode-icons/ File and folder icon themes (see tools/icons.py)
 
 Requires Python 3.9+, no third-party packages.
 """
@@ -1070,6 +1071,8 @@ def main():
     all_themes = [t for ts in themes_by_family.values() for t in ts]
     rows = []
     errors, warnings = validate(data, ref, gruv, all_themes, rows)
+    import icons  # file and folder icon themes, tools/icons.py
+    errors += icons.validate(data)
     if args.verbose:
         print(terminal_table(rows) + "\n")
     for w in warnings:
@@ -1122,6 +1125,7 @@ def main():
     n = len(all_themes)
     print(f"built {n} themes: Zed ({len(data['families'])} files), Windows Terminal ({n} schemes), "
           f"Obsidian ({snippets} snippets), Claude Code ({n}), opencode ({n}), preview")
+    print(icons.build(data))
 
 
 if __name__ == "__main__":

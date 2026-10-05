@@ -4,7 +4,7 @@ A growing grab bag of rich, low-glare themes: Aubergine, Lagoon, Forest, Indigo 
 
 Every theme ships for **Zed**, **Windows Terminal**, **Claude Code**, **opencode** and **Obsidian**
 (via the AnuPpuccin theme), and works in **Antigravity CLI** through the terminal scheme,
-all generated from one file: `palettes.json`.
+plus a matching **file icon theme** for Zed and VS Code, all generated from one file: `palettes.json`.
 
 | Family | Themes |
 |---|---|
@@ -15,6 +15,23 @@ all generated from one file: `palettes.json`.
 | Mid Tones | Clay, Mauve, Stone |
 
 `preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples, next to Zed's Gruvbox for comparison.
+
+## File icons
+
+Every theme also has a matching file and folder icon theme for coding, named `<Theme> Icons`:
+about 580 icons covering some 4,200 extensions, file names and folder names, from C, C++, CUDA,
+assembly and every shader format (GLSL `.vert`/`.frag`/`.comp`..., HLSL, WGSL, Metal, Slang, SPIR-V)
+to CMake, Meson, Ninja, Bazel, vcpkg and clang configs, plus the usual languages and tools. Icons
+take the theme's own hues (C and C++ blue, shaders purple ...) and folders are outlined in its accent.
+The shapes are Catppuccin's icon set (MIT, see `tools/icons/LICENSE`), recolored by the build.
+`preview/icons.html` shows them for every theme.
+
+- **Zed**: included in the extension. Pick one with `icon theme selector: toggle`, or follow the
+  system mode with `"icon_theme": { "mode": "system", "light": "<Light theme> Icons", "dark": "<Dark theme> Icons" }`.
+- **VS Code, Cursor, VSCodium, Windsurf**: `install.ps1` installs them; pick one with
+  *Preferences: File Icon Theme*.
+
+To change which icon a file type gets, edit `tools/icons/associations.json` and rebuild.
 
 ## Syntax colors
 
@@ -48,6 +65,8 @@ Pick a theme with Ctrl+K, Ctrl+T. To follow the system light/dark mode:
 - Claude Code: themes go to `~/.claude/themes/`; pick one with `/theme`. Use it together with the same
   scheme in Windows Terminal: Claude Code draws on the terminal's background.
 - opencode: themes go to `~/.config/opencode/themes/`; pick one with `/theme`.
+- VS Code (and Cursor, VSCodium, Windsurf): the icon themes are installed as an extension; pick one with
+  *Preferences: File Icon Theme*. Skip with `-SkipIcons`.
 - Antigravity CLI: nothing to install. Keep `colorScheme` on `"terminal"` (the default, or `/config`)
   and it uses the Windows Terminal scheme.
 - Obsidian: install the AnuPpuccin theme, then Settings > Appearance > CSS snippets, and enable **one**

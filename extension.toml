@@ -1,6 +1,6 @@
 id = "unyxed-idk-theme"
 name = "Unyxed IDK Themes"
-version = "0.3.2"
+version = "0.4.0"
 schema_version = 1
 authors = ["unyxed"]
 description = "A growing grab bag of rich, low-glare themes: Aubergine, Lagoon, Forest, Indigo Dusk, and the Clay, Mauve and Stone mid-tones."
