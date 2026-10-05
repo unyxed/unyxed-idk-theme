@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Aubergine Dark",
+  "version": "0.3.2",
+  "description": "Aubergine Dark, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        46,
+        31,
+        56
+      ],
+      "frame_inactive": [
+        46,
+        31,
+        56
+      ],
+      "frame_incognito": [
+        63,
+        46,
+        79
+      ],
+      "frame_incognito_inactive": [
+        63,
+        46,
+        79
+      ],
+      "background_tab": [
+        46,
+        31,
+        56
+      ],
+      "background_tab_inactive": [
+        46,
+        31,
+        56
+      ],
+      "background_tab_incognito": [
+        46,
+        31,
+        56
+      ],
+      "toolbar": [
+        58,
+        40,
+        69
+      ],
+      "tab_text": [
+        239,
+        229,
+        242
+      ],
+      "tab_background_text": [
+        176,
+        163,
+        181
+      ],
+      "tab_background_text_inactive": [
+        162,
+        144,
+        176
+      ],
+      "bookmark_text": [
+        239,
+        229,
+        242
+      ],
+      "toolbar_text": [
+        239,
+        229,
+        242
+      ],
+      "toolbar_button_icon": [
+        203,
+        191,
+        207
+      ],
+      "omnibox_background": [
+        69,
+        51,
+        79
+      ],
+      "omnibox_text": [
+        239,
+        229,
+        242
+      ],
+      "ntp_background": [
+        58,
+        40,
+        69
+      ],
+      "ntp_text": [
+        239,
+        229,
+        242
+      ],
+      "ntp_link": [
+        82,
+        166,
+        238
+      ],
+      "ntp_header": [
+        46,
+        31,
+        56
+      ],
+      "button_background": [
+        69,
+        51,
+        79
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

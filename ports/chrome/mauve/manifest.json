@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Mauve",
+  "version": "0.3.2",
+  "description": "Mauve, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        200,
+        186,
+        194
+      ],
+      "frame_inactive": [
+        200,
+        186,
+        194
+      ],
+      "frame_incognito": [
+        183,
+        165,
+        181
+      ],
+      "frame_incognito_inactive": [
+        183,
+        165,
+        181
+      ],
+      "background_tab": [
+        200,
+        186,
+        194
+      ],
+      "background_tab_inactive": [
+        200,
+        186,
+        194
+      ],
+      "background_tab_incognito": [
+        200,
+        186,
+        194
+      ],
+      "toolbar": [
+        214,
+        199,
+        208
+      ],
+      "tab_text": [
+        65,
+        54,
+        66
+      ],
+      "tab_background_text": [
+        83,
+        75,
+        83
+      ],
+      "tab_background_text_inactive": [
+        98,
+        85,
+        96
+      ],
+      "bookmark_text": [
+        65,
+        54,
+        66
+      ],
+      "toolbar_text": [
+        65,
+        54,
+        66
+      ],
+      "toolbar_button_icon": [
+        95,
+        83,
+        94
+      ],
+      "omnibox_background": [
+        205,
+        190,
+        199
+      ],
+      "omnibox_text": [
+        65,
+        54,
+        66
+      ],
+      "ntp_background": [
+        214,
+        199,
+        208
+      ],
+      "ntp_text": [
+        65,
+        54,
+        66
+      ],
+      "ntp_link": [
+        0,
+        57,
+        118
+      ],
+      "ntp_header": [
+        200,
+        186,
+        194
+      ],
+      "button_background": [
+        205,
+        190,
+        199
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}
