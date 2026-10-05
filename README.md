@@ -14,15 +14,20 @@ all generated from one file: `palettes.json`.
 | Indigo Dusk | Indigo Dusk Dark, Indigo Dusk Light |
 | Mid Tones | Clay, Mauve, Stone |
 
-`preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples.
+`preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples, next to Zed's Gruvbox for comparison.
 
 ## Syntax colors
 
-Nine syntax hues, spread around the color wheel with matched lightness so tokens are easy to tell apart
-but the theme stays calm: declaration keywords, control flow, imports and preprocessor, strings, functions,
-numbers, types, properties and operators each get their own color. The build enforces a minimum CIELAB
-difference (delta E 25) between them. It works in any language: grammars that emit only plain `keyword`
-(for example Luau) simply show one keyword color.
+Syntax highlighting follows the structure of Zed's built-in Gruvbox theme: seven hues (red, orange,
+yellow, green, aqua, blue, purple) color the same kinds of tokens Gruvbox colors with them, so code
+reads the way a mainstream theme reads. Keywords are red, functions and strings green, types and
+constants yellow, numbers purple, operators aqua, attributes and namespaces blue; variables and
+properties stay in the plain text color. The hues themselves are each theme's own calm colors,
+and the build enforces a minimum CIELAB difference (delta E 25) between them and the text color.
+It works in any language, including third-party grammars, because it only uses Zed's common
+capture names.
+
+A theme still being moved to this structure is marked "pending" in the preview.
 
 ## Install
 
