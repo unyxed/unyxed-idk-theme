@@ -6,7 +6,8 @@ Instructions for any coding agent (Claude Code, opencode, Codex, etc.) working i
 
 - The owner uses these themes daily and relies on agents to design and maintain them. They are not a
   theme designer. Everything must work out of the box: no missing UI colors, no syntax bugs.
-- This repo produces one Zed theme extension plus ports for Windows Terminal and Obsidian (AnuPpuccin).
+- This repo produces one Zed theme extension plus ports for Windows Terminal, Claude Code, opencode
+  and Obsidian (AnuPpuccin). Antigravity CLI is covered by the terminal schemes (see Ports).
 - Sibling repo: `unyxed-cocoa-theme`. Both repos use the **same** `tools/`, `install.ps1` and `reference/`.
   If you change any of those here, make the identical change there.
 
@@ -30,8 +31,10 @@ reference/zed.json       snapshot of Zed's theme keys and grammar captures (with
 themes/*.json            GENERATED Zed theme families
 ports/windows-terminal/  GENERATED Windows Terminal fragment (all schemes)
 ports/obsidian/          GENERATED AnuPpuccin CSS snippets
+ports/claude-code/       GENERATED Claude Code custom themes, one per variant
+ports/opencode/          GENERATED opencode themes, one per variant
 preview/index.html       GENERATED visual preview
-install.ps1              copies ports into Windows Terminal and Obsidian vaults
+install.ps1              copies ports into Windows Terminal, Claude Code, opencode and Obsidian vaults
 extension.toml           Zed extension manifest
 ```
 
@@ -182,6 +185,27 @@ Terminal schemes both come from it. Rules (build **errors**, contrast measured o
   `.theme-light`, which every AnuPpuccin flavor reads before its own colors. One snippet per family, or
   one per variant when a family has several variants of the same appearance (they would collide).
   The owner enables one snippet at a time.
+- **Claude Code**: one `<theme-slug>.json` per variant for `~/.claude/themes/` (`name`, `base`
+  dark/light, `overrides` of Claude Code's color tokens; reference:
+  https://code.claude.com/docs/en/terminal-config#create-a-custom-theme). Claude Code draws on the
+  terminal's own background and has no background token, so these themes assume the matching
+  Windows Terminal scheme (terminal background = `bg`). The accent is `claude`; status, mode and
+  subagent colors use the seven hues; diff and message backgrounds are tints of `bg`.
+- **opencode**: one `<theme-slug>.json` per variant for `~/.config/opencode/themes/` (schema
+  https://opencode.ai/theme.json). opencode paints its own backgrounds (`bg`, `panel`). Its syntax and
+  markdown keys follow the same Gruvbox groups as Zed (keyword red, function/string green, type
+  yellow, number purple, operator aqua, headings green, inline code blue).
+- **Antigravity CLI** (`agy`) has no custom theme files, only built-in schemes. Leave its
+  `colorScheme` on `"terminal"` (the default): it then draws with the terminal's 16 ANSI colors,
+  which our Windows Terminal and Zed terminal schemes already provide and the terminal rules keep
+  readable.
+- **Port readability** (build **errors**, same floors as the terminal): Claude Code text and accent
+  tokens 4.5:1 on `bg`, `inactive`/`subtle` 3.5:1, `text` 4.5:1 on every tinted background (diffs,
+  message backgrounds, selection), `inverseText` 4.5:1 on the colors it sits on; opencode `text`
+  4.5:1 on every background, `textMuted` and diff line numbers 3.5:1, status/accent colors 4.5:1 on
+  both `background` and `backgroundPanel`. Tinted backgrounds back off (`tint()`) and ink colors are
+  nudged (`readable()`, same hue) only as far as these need, so a port can differ by a hair from
+  the palette on a light theme whose panel is darker than its background.
 - Run `install.ps1` after building to copy ports into place.
 
 ## Before you finish a task
