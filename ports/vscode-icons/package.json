@@ -1,0 +1,73 @@
+{
+  "name": "unyxed-idk-icons",
+  "displayName": "Unyxed IDK Icons",
+  "description": "File and folder icons for coding, in the colors of Unyxed IDK Themes.",
+  "publisher": "unyxed",
+  "version": "0.4.0",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "iconThemes": [
+      {
+        "id": "aubergine-dark-icons",
+        "label": "Aubergine Dark Icons",
+        "path": "./themes/aubergine-dark.json"
+      },
+      {
+        "id": "aubergine-light-icons",
+        "label": "Aubergine Light Icons",
+        "path": "./themes/aubergine-light.json"
+      },
+      {
+        "id": "lagoon-dark-icons",
+        "label": "Lagoon Dark Icons",
+        "path": "./themes/lagoon-dark.json"
+      },
+      {
+        "id": "lagoon-light-icons",
+        "label": "Lagoon Light Icons",
+        "path": "./themes/lagoon-light.json"
+      },
+      {
+        "id": "forest-dark-icons",
+        "label": "Forest Dark Icons",
+        "path": "./themes/forest-dark.json"
+      },
+      {
+        "id": "forest-light-icons",
+        "label": "Forest Light Icons",
+        "path": "./themes/forest-light.json"
+      },
+      {
+        "id": "indigo-dusk-dark-icons",
+        "label": "Indigo Dusk Dark Icons",
+        "path": "./themes/indigo-dusk-dark.json"
+      },
+      {
+        "id": "indigo-dusk-light-icons",
+        "label": "Indigo Dusk Light Icons",
+        "path": "./themes/indigo-dusk-light.json"
+      },
+      {
+        "id": "clay-icons",
+        "label": "Clay Icons",
+        "path": "./themes/clay.json"
+      },
+      {
+        "id": "mauve-icons",
+        "label": "Mauve Icons",
+        "path": "./themes/mauve.json"
+      },
+      {
+        "id": "stone-icons",
+        "label": "Stone Icons",
+        "path": "./themes/stone.json"
+      }
+    ]
+  }
+}
