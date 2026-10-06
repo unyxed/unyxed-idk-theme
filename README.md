@@ -87,6 +87,7 @@ Then pick a theme in each app:
 | **Chrome**, Edge, Brave | `ports/chrome/<theme>/` | `chrome://extensions`, turn on Developer mode, Load unpacked, pick the theme's folder. |
 | **Firefox** | `ports/firefox/` | See "Firefox" below. |
 | **Zen Browser** | `ports/zen/<family>/` | `.\install.ps1 -ZenTheme aubergine` copies it into your Zen profiles. Then `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to true, restart. Follows Zen's light/dark mode. |
+| **Dark Reader** (any browser) | `ports/darkreader/` | Dark Reader > Settings > Advanced (older versions: Manage settings) > Import Settings, pick one file such as `aubergine-dark.json`. It only replaces Dark Reader's colors (your site lists stay), despite the overwrite warning. Its Dark/Light switch flips between the family's Dark and Light colors. |
 | **GitHub** | `ports/github/` | Install the Stylus extension, then Stylus > Manage > Write new style, paste one `.user.css` file and save. Follows GitHub's light/dark setting. |
 | **Discord** | `ports/discord/` | install.ps1 copies them for Vencord, Vesktop and BetterDiscord. Turn one on in Settings > Themes. Follows Discord's light/dark setting. |
 | **Obsidian** | `ports/obsidian/` | Install AnuPpuccin, then Settings > Appearance > CSS snippets, enable **one** `unyxed-idk-theme-*.css`. Leave AnuPpuccin's custom color fields in Style Settings empty. |
