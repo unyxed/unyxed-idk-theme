@@ -3,7 +3,7 @@
   "displayName": "Unyxed IDK Icons",
   "description": "File and folder icons for coding, in the colors of Unyxed IDK Themes.",
   "publisher": "unyxed",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.60.0"
@@ -52,6 +52,16 @@
         "id": "indigo-dusk-light-icons",
         "label": "Indigo Dusk Light Icons",
         "path": "./themes/indigo-dusk-light.json"
+      },
+      {
+        "id": "ryoku-dark-icons",
+        "label": "Ryoku Dark Icons",
+        "path": "./themes/ryoku-dark.json"
+      },
+      {
+        "id": "ryoku-light-icons",
+        "label": "Ryoku Light Icons",
+        "path": "./themes/ryoku-light.json"
       },
       {
         "id": "clay-icons",

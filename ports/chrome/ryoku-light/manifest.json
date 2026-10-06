@@ -1,0 +1,118 @@
+{
+  "manifest_version": 3,
+  "name": "Ryoku Light",
+  "version": "0.6.0",
+  "description": "Ryoku Light, generated from palettes.json.",
+  "theme": {
+    "colors": {
+      "frame": [
+        226,
+        217,
+        204
+      ],
+      "frame_inactive": [
+        226,
+        217,
+        204
+      ],
+      "frame_incognito": [
+        208,
+        194,
+        191
+      ],
+      "frame_incognito_inactive": [
+        208,
+        194,
+        191
+      ],
+      "background_tab": [
+        226,
+        217,
+        204
+      ],
+      "background_tab_inactive": [
+        226,
+        217,
+        204
+      ],
+      "background_tab_incognito": [
+        226,
+        217,
+        204
+      ],
+      "toolbar": [
+        237,
+        230,
+        220
+      ],
+      "tab_text": [
+        30,
+        24,
+        18
+      ],
+      "tab_background_text": [
+        101,
+        95,
+        88
+      ],
+      "tab_background_text_inactive": [
+        110,
+        100,
+        90
+      ],
+      "bookmark_text": [
+        30,
+        24,
+        18
+      ],
+      "toolbar_text": [
+        30,
+        24,
+        18
+      ],
+      "toolbar_button_icon": [
+        71,
+        65,
+        58
+      ],
+      "omnibox_background": [
+        225,
+        218,
+        208
+      ],
+      "omnibox_text": [
+        30,
+        24,
+        18
+      ],
+      "ntp_background": [
+        237,
+        230,
+        220
+      ],
+      "ntp_text": [
+        30,
+        24,
+        18
+      ],
+      "ntp_link": [
+        31,
+        69,
+        136
+      ],
+      "ntp_header": [
+        226,
+        217,
+        204
+      ],
+      "button_background": [
+        225,
+        218,
+        208
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "bottom"
+    }
+  }
+}

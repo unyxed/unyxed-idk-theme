@@ -1,0 +1,24 @@
+{
+  "theme": {
+    "mode": 1,
+    "brightness": 100,
+    "contrast": 100,
+    "grayscale": 0,
+    "sepia": 0,
+    "useFont": false,
+    "fontFamily": "Segoe UI",
+    "textStroke": 0,
+    "engine": "dynamicTheme",
+    "stylesheet": "",
+    "darkSchemeBackgroundColor": "#16110b",
+    "darkSchemeTextColor": "#cdc4ba",
+    "lightSchemeBackgroundColor": "#ede6dc",
+    "lightSchemeTextColor": "#1e1812",
+    "scrollbarColor": "auto",
+    "selectionColor": "#2a2118",
+    "styleSystemControls": false,
+    "lightColorScheme": "Default",
+    "darkColorScheme": "Default",
+    "immediateModify": false
+  }
+}

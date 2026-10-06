@@ -196,6 +196,50 @@
       ]
     },
     {
+      "name": "Ryoku",
+      "file": "ryoku",
+      "variants": [
+        {
+          "name": "Ryoku Dark",
+          "appearance": "dark",
+          "colors": {
+            "bg": "#16110B",
+            "panel": "#0F0B07",
+            "tx": "#CDC4BA",
+            "cm": "#8F8378",
+            "sel": "#2A2118",
+            "accent": "#E63D32",
+            "red": "#EA4A3E",
+            "orange": "#F3701E",
+            "yellow": "#DDA843",
+            "green": "#93B878",
+            "aqua": "#5FC8D8",
+            "blue": "#638ECF",
+            "purple": "#B98AC4"
+          }
+        },
+        {
+          "name": "Ryoku Light",
+          "appearance": "light",
+          "colors": {
+            "bg": "#EDE6DC",
+            "panel": "#E2D9CC",
+            "tx": "#1E1812",
+            "cm": "#6E645A",
+            "sel": "#DACFBF",
+            "accent": "#B8251B",
+            "red": "#9C1D16",
+            "orange": "#9E4C02",
+            "yellow": "#7B5C08",
+            "green": "#2F6024",
+            "aqua": "#07606B",
+            "blue": "#1F4588",
+            "purple": "#4A1A60"
+          }
+        }
+      ]
+    },
+    {
       "name": "Mid Tones",
       "file": "mid-tones",
       "variants": [
