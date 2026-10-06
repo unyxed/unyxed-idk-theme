@@ -1343,6 +1343,42 @@ def discord_theme(pkg, title, ks, need):
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------- Dark Reader
+def darkreader_selection(k, need):
+    """Dark Reader draws selected text white on a selection whose HSL lightness is under 50%, else
+    black. Pick our selection color and nudge it (same hue) until that text stays readable."""
+    sel = k.sel
+    for _ in range(100):
+        r, g, b = (x / 255 for x in B.h2r(sel))
+        light = (max(r, g, b) + min(r, g, b)) / 2 >= 0.5
+        fg = "#000000" if light else "#FFFFFF"
+        if B.contrast(fg, sel) >= k.r["ansi"]:
+            break
+        sel = B.mix(sel, "#000000" if not light else "#FFFFFF", .04)
+    need(k.name, fg, sel, k.r["ansi"], "dark reader selected text")
+    return sel
+
+
+def darkreader(k, schemes, need):
+    """Dark Reader settings to import (Settings > Advanced > Import Settings). Only `theme` is set, and
+    Dark Reader merges an import into the current settings key by key, so site lists stay as they are.
+    The dark and light scheme colors come from the family's Dark and Light variants, so Dark Reader's
+    dark/light switch moves between the pair; `mode` starts on this variant's own appearance. A family
+    with no variant for a scheme (IDK's Mid Tones are all light) gets this variant inverted for it."""
+    theme = {"mode": 1 if k.dark else 0, "brightness": 100, "contrast": 100, "grayscale": 0, "sepia": 0,
+             "useFont": False, "fontFamily": "Segoe UI", "textStroke": 0, "engine": "dynamicTheme",
+             "stylesheet": ""}
+    for app in ("dark", "light"):
+        o = schemes.get(app)
+        back, text = (o.bg, o.tx) if o else (k.tx, k.bg)
+        need(k.name, text, back, k.r["text"], f"dark reader {app} scheme text")
+        theme[f"{app}SchemeBackgroundColor"], theme[f"{app}SchemeTextColor"] = back.lower(), text.lower()
+    theme.update({"scrollbarColor": "auto", "selectionColor": darkreader_selection(k, need).lower(),
+                  "styleSystemControls": False, "lightColorScheme": "Default", "darkColorScheme": "Default",
+                  "immediateModify": False})
+    return {"theme": theme}
+
+
 # ---------------------------------------------------------------- write everything
 def build_all(pkg, data, write):
     """Generate every port. `write(relpath, text_or_bytes)` stores a file. Returns (problems, counts)."""
@@ -1411,13 +1447,23 @@ def build_all(pkg, data, write):
             write(f"ports/discord/{ident}-{name}.theme.css", discord_theme(pkg, title, group, need))
             n_units += 1
     counts["zen"] = counts["github"] = counts["discord"] = n_units
+    for fam in data["families"]:
+        schemes = {}
+        for v in fam["variants"]:
+            schemes.setdefault(v["appearance"], ks[v["name"]])
+        for v in fam["variants"]:
+            k = ks[v["name"]]
+            own = {**schemes, v["appearance"]: k}
+            write(f"ports/darkreader/{k.slug}.json", json.dumps(darkreader(k, own, need), indent=2) + "\n")
+    counts["darkreader"] = len(vs)
     return need.problems, counts
 
 
 # Generated paths (relative to the repo root) that build.py owns and may delete before writing.
 OWNED_DIRS = ["ports/ghostty", "ports/kitty", "ports/alacritty", "ports/wezterm", "ports/vscode", "colors",
               "lua/lualine/themes", "ports/tmtheme", "ports/delta", "ports/fzf", "ports/powershell",
-              "ports/chrome", "ports/firefox", "ports/zen", "ports/github", "ports/discord"]
+              "ports/chrome", "ports/firefox", "ports/zen", "ports/github", "ports/discord",
+              "ports/darkreader"]
 
 
 def syntax_check(files):

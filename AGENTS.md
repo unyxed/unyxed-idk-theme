@@ -37,7 +37,8 @@ ports/obsidian/          GENERATED AnuPpuccin CSS snippets
 ports/claude-code/       GENERATED Claude Code custom themes, one per variant
 ports/opencode/          GENERATED opencode themes, one per variant
 ports/<app>/             GENERATED ghostty, kitty, alacritty, wezterm, vscode, tmtheme (bat, delta,
-                         Sublime), delta, fzf, powershell, chrome, firefox, zen, github, discord
+                         Sublime), delta, fzf, powershell, chrome, firefox, zen, github, discord,
+                         darkreader
 colors/, lua/lualine/    GENERATED Neovim colorschemes and lualine themes (at the root so the repo
                          itself loads as a lazy.nvim plugin)
 preview/index.html       GENERATED visual preview for the owner (agents: do not read it, see below)
@@ -256,6 +257,11 @@ plist and zip. Colors drawn on panels are nudged with `Ctx.ink()` and translucen
   apps' CSS variables (Primer for GitHub, Discord's design tokens) and their code highlighting.
   These apps rename variables now and then: when the owner reports an unthemed spot, add the new
   variable in `github_vars()` / `discord_vars()` / `zen_chrome()`.
+- **Dark Reader**: one settings file per variant (`darkreader()`), imported in Dark Reader's settings. It
+  holds only `theme`; Dark Reader merges an import key by key, so the owner's site lists survive. The dark
+  and light scheme colors are the family's Dark and Light `bg`/`tx` (a family without one, like IDK's Mid
+  Tones, uses the variant inverted), `mode` is the variant's appearance, and the selection is `sel`,
+  nudged until Dark Reader's own black-or-white selected text stays readable.
 - **Obsidian**: snippets set AnuPpuccin's `--ctp-custom-*` variables (RGB triples) on `.theme-dark` /
   `.theme-light`, which every AnuPpuccin flavor reads before its own colors. One snippet per family, or
   one per variant when a family has several variants of the same appearance (they would collide).
