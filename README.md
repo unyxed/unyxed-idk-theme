@@ -1,6 +1,6 @@
 # Unyxed IDK Themes
 
-A growing grab bag of rich, low-glare themes: Aubergine, Lagoon, Forest, Indigo Dusk, and the Clay, Mauve and Stone mid-tones.
+A growing grab bag of rich, low-glare themes: Aubergine, Lagoon, Forest, Indigo Dusk, Ryoku, and the Clay, Mauve and Stone mid-tones.
 
 Every theme ships for **Zed** and a long list of other apps, all generated from one file, `palettes.json`, so a color fixed there reaches every app on the next build:
 
@@ -17,6 +17,7 @@ Every theme ships for **Zed** and a long list of other apps, all generated from 
 | Lagoon | Lagoon Dark, Lagoon Light |
 | Forest | Forest Dark, Forest Light |
 | Indigo Dusk | Indigo Dusk Dark, Indigo Dusk Light |
+| Ryoku | Ryoku Dark, Ryoku Light |
 | Mid Tones | Clay, Mauve, Stone |
 
 `preview/index.html` shows every theme side by side (open it in a browser) with C++, TypeScript and Luau samples, next to Zed's Gruvbox for comparison.

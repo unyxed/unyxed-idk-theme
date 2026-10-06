@@ -173,6 +173,48 @@
     commit-decoration-style = "#C7C5D7" box
     blame-palette = "#EDECF5 #E3E2EC #E1E0EB"
 
+[delta "ryoku-dark"]
+    dark = true
+    syntax-theme = Ryoku Dark
+    minus-style = syntax "#401C15"
+    minus-emph-style = syntax "#62261D"
+    plus-style = syntax "#2F3221"
+    plus-emph-style = syntax "#434D32"
+    map-styles = bold purple => syntax "#372930", bold cyan => syntax "#253634"
+    line-numbers-minus-style = "#EA4A3E"
+    line-numbers-plus-style = "#93B878"
+    line-numbers-zero-style = "#776C62"
+    line-numbers-left-style = "#1E1A15"
+    line-numbers-right-style = "#1E1A15"
+    file-style = "#CDC4BA" bold
+    file-decoration-style = "#2A2520" ul
+    hunk-header-style = file line-number syntax
+    hunk-header-decoration-style = "#2A2520" box
+    hunk-header-line-number-style = "#638ECF"
+    commit-decoration-style = "#2A2520" box
+    blame-palette = "#16110B #1F1A14 #211C16"
+
+[delta "ryoku-light"]
+    light = true
+    syntax-theme = Ryoku Light
+    minus-style = syntax "#DDBEB4"
+    minus-emph-style = syntax "#D09E95"
+    plus-style = syntax "#C7CBB7"
+    plus-emph-style = syntax "#A9B69A"
+    map-styles = bold purple => syntax "#CCBDC3", bold cyan => syntax "#BFCBC5"
+    line-numbers-minus-style = "#9C1D16"
+    line-numbers-plus-style = "#2F6024"
+    line-numbers-zero-style = "#877E74"
+    line-numbers-left-style = "#D2CABD"
+    line-numbers-right-style = "#D2CABD"
+    file-style = "#1E1812" bold
+    file-decoration-style = "#C7BEB2" ul
+    hunk-header-style = file line-number syntax
+    hunk-header-decoration-style = "#C7BEB2" box
+    hunk-header-line-number-style = "#1F4588"
+    commit-decoration-style = "#C7BEB2" box
+    blame-palette = "#EDE6DC #E3DCD2 #E1DAD0"
+
 [delta "clay"]
     light = true
     syntax-theme = Clay

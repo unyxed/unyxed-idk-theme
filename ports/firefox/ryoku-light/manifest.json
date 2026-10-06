@@ -1,0 +1,62 @@
+{
+  "manifest_version": 2,
+  "name": "Ryoku Light",
+  "version": "0.6.0",
+  "description": "Ryoku Light, generated from palettes.json.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ryoku-light@unyxed-idk-theme",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#E2D9CC",
+      "frame_inactive": "#E2D9CC",
+      "tab_background_text": "#655F58",
+      "tab_text": "#1E1812",
+      "tab_selected": "#EDE6DC",
+      "tab_line": "#B8251B",
+      "tab_loading": "#B8251B",
+      "tab_background_separator": "#C7BEB2",
+      "toolbar": "#EDE6DC",
+      "toolbar_text": "#1E1812",
+      "toolbar_field": "#E1DAD0",
+      "toolbar_field_text": "#1E1812",
+      "toolbar_field_border": "#D2CABD",
+      "toolbar_field_focus": "#E1DAD0",
+      "toolbar_field_text_focus": "#1E1812",
+      "toolbar_field_border_focus": "#B8251B",
+      "toolbar_field_highlight": "#D39B91",
+      "toolbar_field_highlight_text": "#1E1812",
+      "toolbar_top_separator": "#E2D9CC",
+      "toolbar_bottom_separator": "#D2CABD",
+      "toolbar_vertical_separator": "#C7BEB2",
+      "popup": "#F3EFE8",
+      "popup_text": "#1E1812",
+      "popup_border": "#C7BEB2",
+      "popup_highlight": "#DACFBF",
+      "popup_highlight_text": "#1E1812",
+      "sidebar": "#E2D9CC",
+      "sidebar_text": "#1E1812",
+      "sidebar_border": "#D2CABD",
+      "sidebar_highlight": "#DACFBF",
+      "sidebar_highlight_text": "#1E1812",
+      "button_background_hover": "#D8D1C8",
+      "button_background_active": "#D0C9C0",
+      "icons": "#47413A",
+      "icons_attention": "#B8251B",
+      "ntp_background": "#EDE6DC",
+      "ntp_text": "#1E1812",
+      "ntp_card_background": "#F3EFE8"
+    },
+    "properties": {
+      "color_scheme": "light",
+      "content_color_scheme": "light"
+    }
+  }
+}

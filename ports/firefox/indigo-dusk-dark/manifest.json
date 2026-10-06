@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Indigo Dusk Dark",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Indigo Dusk Dark, generated from palettes.json.",
   "browser_specific_settings": {
     "gecko": {
